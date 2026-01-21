@@ -1,0 +1,182 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+	<meta charset="utf-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1" />
+	<title>Label Layout Builder</title>
+	<link rel="stylesheet" href="./index.css" />
+</head>
+
+<body>
+	<div class="app">
+			<header class="hero">
+				<div>
+					<p class="eyebrow">Phomemo D30</p>
+					<h1>Web Bluetooth Print</h1>
+				</div>
+			</header>
+
+		<main class="main">
+			<section class="controls">
+				<div class="card">
+					<h2>Layout</h2>
+					<label for="layoutSelect" class="field-label">Choose layout</label>
+					<select id="layoutSelect" class="field-input">
+						<option value="text" selected>Text</option>
+						<option value="barcode">Barcode</option>
+						<option value="image">Image</option>
+						<option value="qr">QR Code</option>
+						<option value="qr-text">QR Code + Text</option>
+					</select>
+				</div>
+
+				<div class="card layout-fields" data-layout="text">
+					<h3>Text settings</h3>
+					<label for="textInput" class="field-label">Text</label>
+					<textarea id="textInput" class="field-input" rows="3">https://example.com</textarea>
+					<label for="textFont" class="field-label">Font</label>
+					<select id="textFont" class="field-input">
+						<option value="'Noto Sans JP', sans-serif">Noto Sans JP</option>
+						<option value="'Montserrat', sans-serif">Montserrat</option>
+						<option value="'Merriweather', serif">Merriweather</option>
+						<option value="'Roboto Mono', monospace">Roboto Mono</option>
+						<option value="sans-serif">System Sans</option>
+					</select>
+					<label for="textSize" class="field-label">Font size (px)</label>
+					<input id="textSize" class="field-input" type="number" value="48" min="1" />
+					<label for="textAlign" class="field-label">Alignment</label>
+					<select id="textAlign" class="field-input">
+						<option value="center" selected>Center</option>
+						<option value="left">Left</option>
+						<option value="right">Right</option>
+					</select>
+					<div class="toggle-row">
+						<label class="toggle">
+							<input type="checkbox" id="textBold" />
+							<span>Bold</span>
+						</label>
+						<label class="toggle">
+							<input type="checkbox" id="textItalic" />
+							<span>Italic</span>
+						</label>
+						<label class="toggle">
+							<input type="checkbox" id="textUnderline" />
+							<span>Underline</span>
+						</label>
+					</div>
+				</div>
+
+				<div class="card layout-fields" data-layout="barcode" hidden>
+					<h3>Barcode settings</h3>
+					<label for="barcodeInput" class="field-label">CODE128 data</label>
+					<input id="barcodeInput" class="field-input" type="text" value="123456" />
+				</div>
+
+				<div class="card layout-fields" data-layout="image" hidden>
+					<h3>Image settings</h3>
+					<label for="imageInput" class="field-label">Image file</label>
+					<input id="imageInput" class="field-input" type="file" accept="image/*" />
+				</div>
+
+				<div class="card layout-fields" data-layout="qr" hidden>
+					<h3>QR Code settings</h3>
+					<label for="qrInput" class="field-label">QR code data</label>
+					<input id="qrInput" class="field-input" type="text" value="https://example.com" />
+				</div>
+
+				<div class="card layout-fields" data-layout="qr-text" hidden>
+					<h3>QR Code + Text settings</h3>
+					<label for="qrTextData" class="field-label">QR code data</label>
+					<input id="qrTextData" class="field-input" type="text" value="https://example.com" />
+					<label for="qrTextInput" class="field-label">Text</label>
+					<textarea id="qrTextInput" class="field-input" rows="2">Hello QR</textarea>
+					<label for="qrTextFont" class="field-label">Font</label>
+					<select id="qrTextFont" class="field-input">
+						<option value="'Noto Sans JP', sans-serif">Noto Sans JP</option>
+						<option value="'Montserrat', sans-serif">Montserrat</option>
+						<option value="'Merriweather', serif">Merriweather</option>
+						<option value="'Roboto Mono', monospace">Roboto Mono</option>
+						<option value="sans-serif">System Sans</option>
+					</select>
+					<label for="qrTextSize" class="field-label">Font size (px)</label>
+					<input id="qrTextSize" class="field-input" type="number" value="24" min="1" />
+					<label for="qrTextAlign" class="field-label">Alignment</label>
+					<select id="qrTextAlign" class="field-input">
+						<option value="center" selected>Center</option>
+						<option value="left">Left</option>
+						<option value="right">Right</option>
+					</select>
+					<div class="toggle-row">
+						<label class="toggle">
+							<input type="checkbox" id="qrTextBold" checked />
+							<span>Bold</span>
+						</label>
+						<label class="toggle">
+							<input type="checkbox" id="qrTextItalic" />
+							<span>Italic</span>
+						</label>
+						<label class="toggle">
+							<input type="checkbox" id="qrTextUnderline" />
+							<span>Underline</span>
+						</label>
+					</div>
+				</div>
+
+			</section>
+
+			<section class="preview">
+				<div class="card">
+					<div class="preview-header">
+						<h2>Preview</h2>
+						<p>Canvas is rotated to match printer orientation.</p>
+					</div>
+					<div class="preview-stage">
+						<div class="preview-frame">
+							<canvas id="previewCanvas"></canvas>
+						</div>
+					</div>
+				</div>
+				<div class="card">
+					<h2>Label size</h2>
+					<div class="field-row">
+						<div>
+							<label for="labelWidth" class="field-label">Width (mm)</label>
+							<input id="labelWidth" class="field-input" type="number" value="40" min="1" />
+						</div>
+						<div>
+							<label for="labelHeight" class="field-label">Height (mm)</label>
+							<input id="labelHeight" class="field-input" type="number" value="12" min="1" />
+						</div>
+						<div>
+							<label for="labelMarginX" class="field-label">Margin X (mm)</label>
+							<input id="labelMarginX" class="field-input" type="number" value="2" min="0" />
+						</div>
+						<div>
+							<label for="labelMarginY" class="field-label">Margin Y (mm)</label>
+							<input id="labelMarginY" class="field-input" type="number" value="0" min="0" />
+						</div>
+					</div>
+				</div>
+				<div class="card print-card">
+					<h2>Print</h2>
+					<p class="helper">Connect to the printer and send the current preview.</p>
+					<label for="printCopies" class="field-label">Copies</label>
+					<input id="printCopies" class="field-input" type="number" value="1" min="1" />
+					<button type="button" class="primary-button" id="printButton">
+						Connect &amp; print
+					</button>
+					<p class="status" id="printStatus" aria-live="polite"></p>
+				</div>
+			</section>
+		</main>
+	</div>
+
+	<link rel="stylesheet"
+		href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600&family=Merriweather:wght@400;700&family=Roboto+Mono:wght@400;600&family=Noto+Sans+JP:wght@400;700&display=swap" />
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode/1.5.1/qrcode.min.js"></script>
+	<script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.6/dist/JsBarcode.all.min.js"></script>
+	<script type="module" src="./index.js"></script>
+</body>
+
+</html>
