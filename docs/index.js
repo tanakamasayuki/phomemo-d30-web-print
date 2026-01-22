@@ -22,7 +22,8 @@ const pixelIsWhite = (imageData, offset) => {
 	const red = imageData[offset];
 	const green = imageData[offset + 1];
 	const blue = imageData[offset + 2];
-	return red + green + blue > 0;
+	const luminance = 0.299 * red + 0.587 * green + 0.114 * blue;
+	return luminance > 200;
 };
 
 const canvasToPrintData = (canvas) => {
@@ -239,7 +240,8 @@ const updateCanvasBarcode = (canvas) => {
 	const bounds = getLabelBounds(canvas);
 	const availableWidth = Math.max(0, bounds.right - bounds.left);
 	const availableHeight = Math.max(0, bounds.bottom - bounds.top);
-	const valueFontSize = Math.max(10, Math.floor(labelSize.height * 1.2));
+	const barcodeMargin = 2;
+	const valueFontSize = Math.max(10, Math.floor(labelSize.height * 2));
 	const valueMargin = 4;
 	const barcodeHeight = Math.max(
 		1,
@@ -257,7 +259,7 @@ const updateCanvasBarcode = (canvas) => {
 
 		ctx.imageSmoothingEnabled = false;
 		const drawBarcodeBlock = (areaLeft, areaTop, areaWidth, areaHeight, align) => {
-			const scale = Math.min(1, areaWidth / image.width);
+			const scale = Math.min(1, areaWidth / image.width, areaHeight / image.height);
 			const drawWidth = Math.max(1, Math.round(image.width * scale));
 			const drawHeight = Math.max(1, Math.round(image.height * scale));
 			const drawX =
@@ -270,24 +272,35 @@ const updateCanvasBarcode = (canvas) => {
 			return drawWidth;
 		};
 
+		const barcodeTop = bounds.top + barcodeMargin;
+		const barcodeHeightWithMargin = Math.max(0, availableHeight - barcodeMargin * 2);
+		const textTop = bounds.top + barcodeMargin;
+		const textHeightWithMargin = Math.max(0, availableHeight - barcodeMargin * 2);
+
 		if (!text.trim()) {
-			drawBarcodeBlock(bounds.left, bounds.top, availableWidth, availableHeight, "center");
+			drawBarcodeBlock(
+				bounds.left,
+				barcodeTop,
+				availableWidth,
+				barcodeHeightWithMargin,
+				"center"
+			);
 		} else {
 			const gap = 6;
 			const minTextWidth = 32;
 			const barcodeWidth = Math.max(16, availableWidth - gap - minTextWidth);
 			const drawWidth = drawBarcodeBlock(
 				bounds.left,
-				bounds.top,
+				barcodeTop,
 				barcodeWidth,
-				availableHeight,
+				barcodeHeightWithMargin,
 				"left"
 			);
 
 			const textX = bounds.left + drawWidth + gap;
-			const textY = bounds.top;
+			const textY = textTop;
 			const textWidth = Math.max(0, availableWidth - drawWidth - gap);
-			const textHeight = availableHeight;
+			const textHeight = textHeightWithMargin;
 			if (textWidth > 0 && textHeight > 0) {
 				ctx.fillStyle = "#000";
 				renderTextBlock(ctx, text, {
