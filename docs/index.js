@@ -493,50 +493,58 @@ const updateCanvasQRText = async (canvas) => {
 		qrSize = Math.max(16, Math.min(maxQrSize, availableForQr));
 	}
 
-	const qrImg = await QRCode.toDataURL(data, { width: qrSize, margin: 1 });
-	const image = new Image();
-	image.addEventListener("load", () => {
-		ctx.translate(canvas.width / 2, canvas.height / 2);
-		ctx.rotate(Math.PI / 2);
+	try {
+		const qrImg = await QRCode.toDataURL(data, { width: qrSize, margin: 1 });
+		return new Promise((resolve) => {
+			const image = new Image();
+			image.addEventListener("load", () => {
+				ctx.translate(canvas.width / 2, canvas.height / 2);
+				ctx.rotate(Math.PI / 2);
 
-		ctx.imageSmoothingEnabled = false;
-		if (!text.trim()) {
-			const drawX = -labelWidth / 2 + (labelWidth - qrSize) / 2;
-			const drawY = -labelHeight / 2 + (labelHeight - qrSize) / 2;
-			ctx.drawImage(image, drawX, drawY, qrSize, qrSize);
-		} else {
-			const qrX = left;
-			const qrY = top;
-			ctx.drawImage(image, qrX, qrY, qrSize, qrSize);
+				ctx.imageSmoothingEnabled = false;
+				if (!text.trim()) {
+					const drawX = -labelWidth / 2 + (labelWidth - qrSize) / 2;
+					const drawY = -labelHeight / 2 + (labelHeight - qrSize) / 2;
+					ctx.drawImage(image, drawX, drawY, qrSize, qrSize);
+				} else {
+					const qrX = left;
+					const qrY = top;
+					ctx.drawImage(image, qrX, qrY, qrSize, qrSize);
 
-			ctx.fillStyle = "#000";
-			ctx.textAlign = "left";
-			ctx.textBaseline = "top";
-			const textX = qrX + qrSize + gap;
-			const textY = top;
-			const textWidth = Math.max(0, right - textX);
-			const textHeight = Math.max(0, bottom - top);
-			if (textWidth > 0 && textHeight > 0) {
-				renderTextBlock(ctx, text, {
-					x: textX,
-					y: textY,
-					width: textWidth,
-					height: textHeight,
-					font,
-					fontSize: resolvedFontSize,
-					fontStyle,
-					fontWeight,
-					underline,
-					align,
-				});
-			}
-		}
+					ctx.fillStyle = "#000";
+					ctx.textAlign = "left";
+					ctx.textBaseline = "top";
+					const textX = qrX + qrSize + gap;
+					const textY = top;
+					const textWidth = Math.max(0, right - textX);
+					const textHeight = Math.max(0, bottom - top);
+					if (textWidth > 0 && textHeight > 0) {
+						renderTextBlock(ctx, text, {
+							x: textX,
+							y: textY,
+							width: textWidth,
+							height: textHeight,
+							font,
+							fontSize: resolvedFontSize,
+							fontStyle,
+							fontWeight,
+							underline,
+							align,
+						});
+					}
+				}
 
-		ctx.rotate(-Math.PI / 2);
-		ctx.translate(-canvas.width / 2, -canvas.height / 2);
-	});
-
-	image.src = qrImg;
+				ctx.rotate(-Math.PI / 2);
+				ctx.translate(-canvas.width / 2, -canvas.height / 2);
+				resolve();
+			});
+			image.addEventListener("error", () => resolve());
+			image.src = qrImg;
+		});
+	} catch (error) {
+		console.error(error);
+		return Promise.resolve();
+	}
 };
 
 const layoutHandlers = {
