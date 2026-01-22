@@ -77,6 +77,13 @@ const I18N = {
 	en: {
 		"app.title": "Label Layout Builder",
 		"hero.title": "Web Bluetooth Print",
+		"language.title": "Language",
+		"language.auto": "Auto (Browser)",
+		"language.english": "English",
+		"language.japanese": "Japanese",
+		"language.chinese": "Chinese",
+		"language.french": "French",
+		"language.spanish": "Spanish",
 		"layout.title": "Layout",
 		"layout.choose": "Choose layout",
 		"layout.text": "Text",
@@ -143,6 +150,13 @@ const I18N = {
 	ja: {
 		"app.title": "ラベルレイアウトビルダー",
 		"hero.title": "Web Bluetooth Print",
+		"language.title": "言語",
+		"language.auto": "自動（ブラウザ）",
+		"language.english": "英語",
+		"language.japanese": "日本語",
+		"language.chinese": "中国語",
+		"language.french": "フランス語",
+		"language.spanish": "スペイン語",
 		"layout.title": "レイアウト",
 		"layout.choose": "レイアウトを選択",
 		"layout.text": "テキスト",
@@ -208,6 +222,13 @@ const I18N = {
 	zh: {
 		"app.title": "标签版式生成器",
 		"hero.title": "Web Bluetooth Print",
+		"language.title": "语言",
+		"language.auto": "自动（浏览器）",
+		"language.english": "英语",
+		"language.japanese": "日语",
+		"language.chinese": "中文",
+		"language.french": "法语",
+		"language.spanish": "西班牙语",
 		"layout.title": "布局",
 		"layout.choose": "选择布局",
 		"layout.text": "文本",
@@ -273,6 +294,13 @@ const I18N = {
 	fr: {
 		"app.title": "Générateur de mise en page",
 		"hero.title": "Web Bluetooth Print",
+		"language.title": "Langue",
+		"language.auto": "Auto (navigateur)",
+		"language.english": "Anglais",
+		"language.japanese": "Japonais",
+		"language.chinese": "Chinois",
+		"language.french": "Français",
+		"language.spanish": "Espagnol",
 		"layout.title": "Disposition",
 		"layout.choose": "Choisir la disposition",
 		"layout.text": "Texte",
@@ -338,6 +366,13 @@ const I18N = {
 	es: {
 		"app.title": "Generador de diseño",
 		"hero.title": "Web Bluetooth Print",
+		"language.title": "Idioma",
+		"language.auto": "Auto (navegador)",
+		"language.english": "Inglés",
+		"language.japanese": "Japonés",
+		"language.chinese": "Chino",
+		"language.french": "Francés",
+		"language.spanish": "Español",
 		"layout.title": "Diseño",
 		"layout.choose": "Elegir diseño",
 		"layout.text": "Texto",
@@ -403,6 +438,10 @@ const I18N = {
 };
 
 const getLanguage = () => {
+	const select = $("#languageSelect");
+	if (select && select.value) {
+		return select.value;
+	}
 	const raw = (navigator.language || "en").toLowerCase();
 	if (raw.startsWith("ja")) return "ja";
 	if (raw.startsWith("zh")) return "zh";
@@ -420,8 +459,9 @@ const t = (key, params = {}) => {
 	return template;
 };
 
-const applyTranslations = () => {
-	currentLanguage = getLanguage();
+const applyTranslations = (language) => {
+	const resolvedLanguage = language || getLanguage();
+	currentLanguage = I18N[resolvedLanguage] ? resolvedLanguage : "en";
 	document.documentElement.lang = currentLanguage;
 	$$("[data-i18n]").forEach((element) => {
 		element.textContent = t(element.dataset.i18n);
@@ -1080,10 +1120,16 @@ const initialize = () => {
 	const printCopies = $("#printCopies");
 	let printerDevice = null;
 	let printerCharacteristic = null;
-	applyTranslations();
 	restoreFormState();
+	applyTranslations();
 	updateLabelSize(canvas);
 	setActiveLayout($("#layoutSelect").value, canvas);
+
+	$("#languageSelect").addEventListener("change", (event) => {
+		applyTranslations(event.target.value);
+		refreshPreview($("#layoutSelect").value, canvas);
+		saveFormState();
+	});
 
 	$("#layoutSelect").addEventListener("change", (event) => {
 		setActiveLayout(event.target.value, canvas);
