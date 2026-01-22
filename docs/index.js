@@ -227,6 +227,8 @@ const updateCanvasText = (canvas) => {
 
 const updateCanvasBarcode = (canvas) => {
 	const barcodeData = $("#barcodeInput").value;
+	const format = $("#barcodeFormat").value;
+	const showValue = $("#barcodeShowValue").checked;
 	const text = $("#barcodeTextInput").value;
 	const fontSize = $("#barcodeTextSize").valueAsNumber;
 	const font = $("#barcodeTextFont").value;
@@ -234,12 +236,18 @@ const updateCanvasBarcode = (canvas) => {
 	const fontWeight = $("#barcodeTextBold").checked ? "bold" : "";
 	const underline = $("#barcodeTextUnderline").checked;
 	const image = document.createElement("img");
+	const bounds = getLabelBounds(canvas);
+	const availableWidth = Math.max(0, bounds.right - bounds.left);
+	const availableHeight = Math.max(0, bounds.bottom - bounds.top);
+	const valueFontSize = Math.max(10, Math.floor(labelSize.height * 1.2));
+	const valueMargin = 4;
+	const barcodeHeight = Math.max(
+		1,
+		Math.round(showValue ? availableHeight - valueFontSize - valueMargin : availableHeight)
+	);
 	image.addEventListener("load", () => {
 		const ctx = canvas.getContext("2d");
 		clearCanvas(canvas);
-		const bounds = getLabelBounds(canvas);
-		const availableWidth = Math.max(0, bounds.right - bounds.left);
-		const availableHeight = Math.max(0, bounds.bottom - bounds.top);
 		const resolvedFontSize = isNaN(fontSize)
 			? Math.max(10, Math.min(48, Math.floor(availableHeight * 0.5)))
 			: Math.max(1, fontSize);
@@ -248,31 +256,33 @@ const updateCanvasBarcode = (canvas) => {
 		ctx.rotate(Math.PI / 2);
 
 		ctx.imageSmoothingEnabled = false;
-		if (!text.trim()) {
-			const scale = Math.min(
-				availableWidth / image.width,
-				availableHeight / image.height,
-				1
-			);
-			const drawWidth = image.width * scale;
-			const drawHeight = image.height * scale;
-			const drawX = bounds.left + (availableWidth - drawWidth) / 2;
-			const drawY = bounds.top + (availableHeight - drawHeight) / 2;
+		const drawBarcodeBlock = (areaLeft, areaTop, areaWidth, areaHeight, align) => {
+			const scale = Math.min(1, areaWidth / image.width);
+			const drawWidth = Math.max(1, Math.round(image.width * scale));
+			const drawHeight = Math.max(1, Math.round(image.height * scale));
+			const drawX =
+				align === "left"
+					? areaLeft
+					: areaLeft + (areaWidth - drawWidth) / 2;
+			const drawY = areaTop + (areaHeight - drawHeight) / 2;
 			ctx.drawImage(image, drawX, drawY, drawWidth, drawHeight);
+
+			return drawWidth;
+		};
+
+		if (!text.trim()) {
+			drawBarcodeBlock(bounds.left, bounds.top, availableWidth, availableHeight, "center");
 		} else {
 			const gap = 6;
 			const minTextWidth = 32;
-			const maxImageWidth = Math.max(16, availableWidth - gap - minTextWidth);
-			const scale = Math.min(
-				maxImageWidth / image.width,
-				availableHeight / image.height,
-				1
+			const barcodeWidth = Math.max(16, availableWidth - gap - minTextWidth);
+			const drawWidth = drawBarcodeBlock(
+				bounds.left,
+				bounds.top,
+				barcodeWidth,
+				availableHeight,
+				"left"
 			);
-			const drawWidth = image.width * scale;
-			const drawHeight = image.height * scale;
-			const drawX = bounds.left;
-			const drawY = bounds.top + (availableHeight - drawHeight) / 2;
-			ctx.drawImage(image, drawX, drawY, drawWidth, drawHeight);
 
 			const textX = bounds.left + drawWidth + gap;
 			const textY = bounds.top;
@@ -300,10 +310,12 @@ const updateCanvasBarcode = (canvas) => {
 	});
 
 	JsBarcode(image, barcodeData, {
-		format: "CODE128",
+		format,
 		width: 2,
-		height: labelSize.height * 7,
-		displayValue: false,
+		height: barcodeHeight,
+		displayValue: showValue,
+		textMargin: valueMargin,
+		fontSize: valueFontSize,
 	});
 };
 
@@ -535,7 +547,9 @@ const initialize = () => {
 		(input) => input.addEventListener("input", () => refreshPreview("text", canvas))
 	);
 
-	$("#barcodeInput").addEventListener("input", () => refreshPreview("barcode", canvas));
+	$$("#barcodeInput, #barcodeFormat, #barcodeShowValue").forEach((input) =>
+		input.addEventListener("input", () => refreshPreview("barcode", canvas))
+	);
 	$$("#barcodeTextInput, #barcodeTextSize, #barcodeTextFont, #barcodeTextBold, #barcodeTextItalic, #barcodeTextUnderline").forEach(
 		(input) => input.addEventListener("input", () => refreshPreview("barcode", canvas))
 	);

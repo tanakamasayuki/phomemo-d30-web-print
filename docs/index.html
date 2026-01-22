@@ -10,12 +10,12 @@
 
 <body>
 	<div class="app">
-			<header class="hero">
-				<div>
-					<p class="eyebrow">Phomemo D30</p>
-					<h1>Web Bluetooth Print</h1>
-				</div>
-			</header>
+		<header class="hero">
+			<div>
+				<p class="eyebrow">Phomemo D30</p>
+				<h1>Web Bluetooth Print</h1>
+			</div>
+		</header>
 
 		<main class="main">
 			<section class="controls">
@@ -68,8 +68,20 @@
 
 				<div class="card layout-fields" data-layout="barcode" hidden>
 					<h3>Barcode + Text settings</h3>
-					<label for="barcodeInput" class="field-label">CODE128 data</label>
+					<label for="barcodeFormat" class="field-label">Barcode type</label>
+					<select id="barcodeFormat" class="field-input">
+						<option value="CODE128" selected>CODE128</option>
+						<option value="CODE39">CODE39</option>
+						<option value="EAN13">EAN-13(JAN-13)</option>
+						<option value="EAN8">EAN-8(JAN-8)</option>
+						<option value="UPC">UPC</option>
+					</select>
+					<label for="barcodeInput" class="field-label">Barcode value</label>
 					<input id="barcodeInput" class="field-input" type="text" value="123456" />
+					<label class="toggle">
+						<input type="checkbox" id="barcodeShowValue" checked />
+						<span>Show barcode value</span>
+					</label>
 					<label for="barcodeTextInput" class="field-label">Text (optional)</label>
 					<textarea id="barcodeTextInput" class="field-input" rows="2"></textarea>
 					<label for="barcodeTextFont" class="field-label">Font</label>
@@ -84,7 +96,7 @@
 					<input id="barcodeTextSize" class="field-input" type="number" value="24" min="1" />
 					<div class="toggle-row">
 						<label class="toggle">
-							<input type="checkbox" id="barcodeTextBold" />
+							<input type="checkbox" id="barcodeTextBold" checked />
 							<span>Bold</span>
 						</label>
 						<label class="toggle">
