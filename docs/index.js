@@ -73,6 +73,8 @@ const $$ = (selector) => document.querySelectorAll(selector);
 const labelSize = { width: 40, height: 12 };
 const labelMargin = { x: 2, y: 0 };
 
+const getEffectiveLabelHeight = () => (labelSize.height === 6 ? 12 : labelSize.height);
+
 const updatePreviewFrame = (canvas) => {
 	const frame = $(".preview-frame");
 	if (!frame) return;
@@ -95,9 +97,16 @@ const updateLabelSize = (canvas) => {
 	labelMargin.y = isNaN(marginY) ? 0 : Math.max(0, marginY);
 
 	// Printer orientation uses rotated canvas.
-	canvas.width = labelSize.height * 8;
+	canvas.width = getEffectiveLabelHeight() * 8;
 	canvas.height = labelSize.width * 8;
 	updatePreviewFrame(canvas);
+};
+
+const createLayoutCanvas = () => {
+	const tempCanvas = document.createElement("canvas");
+	tempCanvas.width = labelSize.height * 8;
+	tempCanvas.height = labelSize.width * 8;
+	return tempCanvas;
 };
 
 const getLabelBounds = (canvas) => {
@@ -236,7 +245,6 @@ const updateCanvasBarcode = (canvas) => {
 	const fontStyle = $("#barcodeTextItalic").checked ? "italic" : "";
 	const fontWeight = $("#barcodeTextBold").checked ? "bold" : "";
 	const underline = $("#barcodeTextUnderline").checked;
-	const image = document.createElement("img");
 	const bounds = getLabelBounds(canvas);
 	const availableWidth = Math.max(0, bounds.right - bounds.left);
 	const availableHeight = Math.max(0, bounds.bottom - bounds.top);
@@ -247,88 +255,100 @@ const updateCanvasBarcode = (canvas) => {
 		1,
 		Math.round(showValue ? availableHeight - valueFontSize - valueMargin : availableHeight)
 	);
-	image.addEventListener("load", () => {
-		const ctx = canvas.getContext("2d");
-		clearCanvas(canvas);
-		const resolvedFontSize = isNaN(fontSize)
-			? Math.max(10, Math.min(48, Math.floor(availableHeight * 0.5)))
-			: Math.max(1, fontSize);
 
-		ctx.translate(canvas.width / 2, canvas.height / 2);
-		ctx.rotate(Math.PI / 2);
+	return new Promise((resolve) => {
+		const image = document.createElement("img");
+		image.addEventListener("load", () => {
+			const ctx = canvas.getContext("2d");
+			clearCanvas(canvas);
+			const resolvedFontSize = isNaN(fontSize)
+				? Math.max(10, Math.min(48, Math.floor(availableHeight * 0.5)))
+				: Math.max(1, fontSize);
 
-		ctx.imageSmoothingEnabled = false;
-		const drawBarcodeBlock = (areaLeft, areaTop, areaWidth, areaHeight, align) => {
-			const scale = Math.min(1, areaWidth / image.width, areaHeight / image.height);
-			const drawWidth = Math.max(1, Math.round(image.width * scale));
-			const drawHeight = Math.max(1, Math.round(image.height * scale));
-			const drawX =
-				align === "left"
-					? areaLeft
-					: areaLeft + (areaWidth - drawWidth) / 2;
-			const drawY = areaTop + (areaHeight - drawHeight) / 2;
-			ctx.drawImage(image, drawX, drawY, drawWidth, drawHeight);
+			ctx.translate(canvas.width / 2, canvas.height / 2);
+			ctx.rotate(Math.PI / 2);
 
-			return drawWidth;
-		};
+			ctx.imageSmoothingEnabled = false;
+			const drawBarcodeBlock = (areaLeft, areaTop, areaWidth, areaHeight, align) => {
+				const scale = Math.min(1, areaWidth / image.width, areaHeight / image.height);
+				const drawWidth = Math.max(1, Math.round(image.width * scale));
+				const drawHeight = Math.max(1, Math.round(image.height * scale));
+				const drawX =
+					align === "left"
+						? areaLeft
+						: areaLeft + (areaWidth - drawWidth) / 2;
+				const drawY = areaTop + (areaHeight - drawHeight) / 2;
+				ctx.drawImage(image, drawX, drawY, drawWidth, drawHeight);
 
-		const barcodeTop = bounds.top + barcodeMargin;
-		const barcodeHeightWithMargin = Math.max(0, availableHeight - barcodeMargin * 2);
-		const textTop = bounds.top + barcodeMargin;
-		const textHeightWithMargin = Math.max(0, availableHeight - barcodeMargin * 2);
+				return drawWidth;
+			};
 
-		if (!text.trim()) {
-			drawBarcodeBlock(
-				bounds.left,
-				barcodeTop,
-				availableWidth,
-				barcodeHeightWithMargin,
-				"center"
-			);
-		} else {
-			const gap = 6;
-			const minTextWidth = 32;
-			const barcodeWidth = Math.max(16, availableWidth - gap - minTextWidth);
-			const drawWidth = drawBarcodeBlock(
-				bounds.left,
-				barcodeTop,
-				barcodeWidth,
-				barcodeHeightWithMargin,
-				"left"
-			);
+			const barcodeTop = bounds.top + barcodeMargin;
+			const barcodeHeightWithMargin = Math.max(0, availableHeight - barcodeMargin * 2);
+			const textTop = bounds.top + barcodeMargin;
+			const textHeightWithMargin = Math.max(0, availableHeight - barcodeMargin * 2);
 
-			const textX = bounds.left + drawWidth + gap;
-			const textY = textTop;
-			const textWidth = Math.max(0, availableWidth - drawWidth - gap);
-			const textHeight = textHeightWithMargin;
-			if (textWidth > 0 && textHeight > 0) {
-				ctx.fillStyle = "#000";
-				renderTextBlock(ctx, text, {
-					x: textX,
-					y: textY,
-					width: textWidth,
-					height: textHeight,
-					font,
-					fontSize: resolvedFontSize,
-					fontStyle,
-					fontWeight,
-					underline,
-					align: "left",
-				});
+			if (!text.trim()) {
+				drawBarcodeBlock(
+					bounds.left,
+					barcodeTop,
+					availableWidth,
+					barcodeHeightWithMargin,
+					"center"
+				);
+			} else {
+				const gap = 6;
+				const minTextWidth = 32;
+				const barcodeWidth = Math.max(16, availableWidth - gap - minTextWidth);
+				const drawWidth = drawBarcodeBlock(
+					bounds.left,
+					barcodeTop,
+					barcodeWidth,
+					barcodeHeightWithMargin,
+					"left"
+				);
+
+				const textX = bounds.left + drawWidth + gap;
+				const textY = textTop;
+				const textWidth = Math.max(0, availableWidth - drawWidth - gap);
+				const textHeight = textHeightWithMargin;
+				if (textWidth > 0 && textHeight > 0) {
+					ctx.fillStyle = "#000";
+					renderTextBlock(ctx, text, {
+						x: textX,
+						y: textY,
+						width: textWidth,
+						height: textHeight,
+						font,
+						fontSize: resolvedFontSize,
+						fontStyle,
+						fontWeight,
+						underline,
+						align: "left",
+					});
+				}
 			}
+
+			ctx.rotate(-Math.PI / 2);
+			ctx.translate(-canvas.width / 2, -canvas.height / 2);
+			resolve();
+		});
+
+		image.addEventListener("error", () => resolve());
+
+		try {
+			JsBarcode(image, barcodeData, {
+				format,
+				width: 2,
+				height: barcodeHeight,
+				displayValue: showValue,
+				textMargin: valueMargin,
+				fontSize: valueFontSize,
+			});
+		} catch (error) {
+			console.error(error);
+			resolve();
 		}
-
-		ctx.rotate(-Math.PI / 2);
-		ctx.translate(-canvas.width / 2, -canvas.height / 2);
-	});
-
-	JsBarcode(image, barcodeData, {
-		format,
-		width: 2,
-		height: barcodeHeight,
-		displayValue: showValue,
-		textMargin: valueMargin,
-		fontSize: valueFontSize,
 	});
 };
 
@@ -362,7 +382,7 @@ const updateCanvasImage = (canvas) => {
 	const underline = $("#imageTextUnderline").checked;
 	if (!file) {
 		clearCanvas(canvas);
-		return;
+		return Promise.resolve();
 	}
 	const bounds = getLabelBounds(canvas);
 	const availableWidth = Math.max(0, bounds.right - bounds.left);
@@ -371,71 +391,74 @@ const updateCanvasImage = (canvas) => {
 		? Math.max(10, Math.min(48, Math.floor(availableHeight * 0.5)))
 		: Math.max(1, fontSize);
 
-	const reader = new FileReader();
-	reader.addEventListener("load", (event) => {
-		const image = new Image();
-		image.addEventListener("load", () => {
-			clearCanvas(canvas);
-			ctx.translate(canvas.width / 2, canvas.height / 2);
-			ctx.rotate(Math.PI / 2);
+	return new Promise((resolve) => {
+		const reader = new FileReader();
+		reader.addEventListener("load", (event) => {
+			const image = new Image();
+			image.addEventListener("load", () => {
+				clearCanvas(canvas);
+				ctx.translate(canvas.width / 2, canvas.height / 2);
+				ctx.rotate(Math.PI / 2);
 
-			ctx.imageSmoothingEnabled = false;
-			if (!text.trim()) {
-				const scale = Math.min(
-					availableWidth / image.width,
-					availableHeight / image.height,
-					1
-				);
-				const drawWidth = Math.max(1, Math.round(image.width * scale));
-				const drawHeight = Math.max(1, Math.round(image.height * scale));
-				const drawX = bounds.left + (availableWidth - drawWidth) / 2;
-				const drawY = bounds.top + (availableHeight - drawHeight) / 2;
-				drawBinarizedImage(ctx, image, drawX, drawY, drawWidth, drawHeight);
-			} else {
-				const gap = 6;
-				const minTextWidth = 32;
-				const maxImageWidth = Math.max(16, availableWidth - gap - minTextWidth);
+				ctx.imageSmoothingEnabled = false;
+				if (!text.trim()) {
+					const scale = Math.min(
+						availableWidth / image.width,
+						availableHeight / image.height,
+						1
+					);
+					const drawWidth = Math.max(1, Math.round(image.width * scale));
+					const drawHeight = Math.max(1, Math.round(image.height * scale));
+					const drawX = bounds.left + (availableWidth - drawWidth) / 2;
+					const drawY = bounds.top + (availableHeight - drawHeight) / 2;
+					drawBinarizedImage(ctx, image, drawX, drawY, drawWidth, drawHeight);
+				} else {
+					const gap = 6;
+					const minTextWidth = 32;
+					const maxImageWidth = Math.max(16, availableWidth - gap - minTextWidth);
 
-				const scale = Math.min(
-					maxImageWidth / image.width,
-					availableHeight / image.height,
-					1
-				);
-				const drawWidth = Math.max(1, Math.round(image.width * scale));
-				const drawHeight = Math.max(1, Math.round(image.height * scale));
-				const drawX = bounds.left;
-				const drawY = bounds.top + (availableHeight - drawHeight) / 2;
-				drawBinarizedImage(ctx, image, drawX, drawY, drawWidth, drawHeight);
+					const scale = Math.min(
+						maxImageWidth / image.width,
+						availableHeight / image.height,
+						1
+					);
+					const drawWidth = Math.max(1, Math.round(image.width * scale));
+					const drawHeight = Math.max(1, Math.round(image.height * scale));
+					const drawX = bounds.left;
+					const drawY = bounds.top + (availableHeight - drawHeight) / 2;
+					drawBinarizedImage(ctx, image, drawX, drawY, drawWidth, drawHeight);
 
-				const textX = bounds.left + drawWidth + gap;
-				const textY = bounds.top;
-				const textHeight = availableHeight;
-				const textWidth = Math.max(0, availableWidth - drawWidth - gap);
-				if (textWidth > 0 && textHeight > 0) {
-					ctx.fillStyle = "#000";
-					renderTextBlock(ctx, text, {
-						x: textX,
-						y: textY,
-						width: textWidth,
-						height: textHeight,
-						font,
-						fontSize: resolvedFontSize,
-						fontStyle,
-						fontWeight,
-						underline,
-						align: "left",
-					});
+					const textX = bounds.left + drawWidth + gap;
+					const textY = bounds.top;
+					const textHeight = availableHeight;
+					const textWidth = Math.max(0, availableWidth - drawWidth - gap);
+					if (textWidth > 0 && textHeight > 0) {
+						ctx.fillStyle = "#000";
+						renderTextBlock(ctx, text, {
+							x: textX,
+							y: textY,
+							width: textWidth,
+							height: textHeight,
+							font,
+							fontSize: resolvedFontSize,
+							fontStyle,
+							fontWeight,
+							underline,
+							align: "left",
+						});
+					}
 				}
-			}
 
-			ctx.rotate(-Math.PI / 2);
-			ctx.translate(-canvas.width / 2, -canvas.height / 2);
+				ctx.rotate(-Math.PI / 2);
+				ctx.translate(-canvas.width / 2, -canvas.height / 2);
+				resolve();
+			});
+			image.addEventListener("error", () => resolve());
+			image.src = event.target.result;
 		});
-
-		image.src = event.target.result;
+		reader.addEventListener("error", () => resolve());
+		reader.readAsDataURL(file);
 	});
-
-	reader.readAsDataURL(file);
 };
 
 const updateCanvasQRText = async (canvas) => {
@@ -530,9 +553,28 @@ const setActiveLayout = (layout, canvas) => {
 	refreshPreview(layout, canvas);
 };
 
+const copyToDoubleHeightCanvas = (sourceCanvas, targetCanvas) => {
+	const ctx = targetCanvas.getContext("2d");
+	ctx.fillStyle = "#fff";
+	ctx.fillRect(0, 0, targetCanvas.width, targetCanvas.height);
+	ctx.drawImage(sourceCanvas, 0, 0);
+	ctx.drawImage(sourceCanvas, sourceCanvas.width, 0);
+};
+
 const refreshPreview = (layout, canvas) => {
 	const handler = layoutHandlers[layout];
-	if (handler) handler(canvas);
+	if (!handler) return;
+	if (labelSize.height === 6) {
+		const tempCanvas = createLayoutCanvas();
+		const result = handler(tempCanvas);
+		if (result && typeof result.then === "function") {
+			result.then(() => copyToDoubleHeightCanvas(tempCanvas, canvas));
+		} else {
+			copyToDoubleHeightCanvas(tempCanvas, canvas);
+		}
+	} else {
+		handler(canvas);
+	}
 };
 
 const initialize = () => {
