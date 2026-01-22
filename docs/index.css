@@ -201,6 +201,36 @@ h3 {
 	min-height: 16px;
 }
 
+.status.error {
+	color: #b33030;
+}
+
+.field-input.is-error {
+	border-color: #d13b3b;
+	box-shadow: 0 0 0 2px rgba(209, 59, 59, 0.15);
+}
+
+.preview-frame.is-error::after {
+	content: attr(data-error);
+	position: absolute;
+	left: 50%;
+	top: 50%;
+	transform: translate(-50%, -50%);
+	background: #fff4f1;
+	color: #b33030;
+	border: 1px solid #e3a2a2;
+	padding: 6px 10px;
+	border-radius: 8px;
+	font-size: 12px;
+	text-align: center;
+	max-width: 220px;
+	pointer-events: none;
+}
+
+.preview-frame.is-error #previewCanvas {
+	box-shadow: inset 0 0 0 2px #d13b3b;
+}
+
 #previewCanvas {
 	background: #fff;
 	border-radius: 10px;

@@ -70,6 +70,68 @@ const printCanvas = async (characteristic, canvas) => {
 const $ = (selector) => document.querySelector(selector);
 const $$ = (selector) => document.querySelectorAll(selector);
 
+const setBarcodeError = (message) => {
+	const error = $("#barcodeError");
+	if (error) {
+		error.textContent = message || "";
+		error.hidden = !message;
+	}
+	const input = $("#barcodeInput");
+	if (input) {
+		input.classList.toggle("is-error", Boolean(message));
+	}
+	const frame = $(".preview-frame");
+	if (frame) {
+		frame.classList.toggle("is-error", Boolean(message));
+		if (message) {
+			frame.dataset.error = message;
+		} else {
+			delete frame.dataset.error;
+		}
+	}
+};
+
+const validateBarcodeValue = (format, value) => {
+	const trimmed = value.trim();
+	if (!trimmed) {
+		return "Barcode value is required.";
+	}
+
+	switch (format) {
+		case "EAN13":
+			if (!/^\d{12,13}$/.test(trimmed)) {
+				return "EAN-13 accepts 12 or 13 digits only.";
+			}
+			return "";
+		case "EAN8":
+			if (!/^\d{7,8}$/.test(trimmed)) {
+				return "EAN-8 accepts 7 or 8 digits only.";
+			}
+			return "";
+		case "UPC":
+			if (!/^\d{11,12}$/.test(trimmed)) {
+				return "UPC accepts 11 or 12 digits only.";
+			}
+			return "";
+		case "CODE39":
+			if (!/^[0-9A-Z .\-$/+%]+$/.test(trimmed)) {
+				return "CODE39 accepts A-Z, 0-9, space, and - . $ / + % only.";
+			}
+			return "";
+		case "CODE128": {
+			for (let i = 0; i < trimmed.length; i += 1) {
+				const code = trimmed.charCodeAt(i);
+				if (code < 32 || code > 126) {
+					return "CODE128 accepts ASCII printable characters only.";
+				}
+			}
+			return "";
+		}
+		default:
+			return "";
+	}
+};
+
 const labelSize = { width: 40, height: 12 };
 const labelMargin = { x: 2, y: 0 };
 
@@ -255,6 +317,12 @@ const updateCanvasBarcode = (canvas) => {
 		1,
 		Math.round(showValue ? availableHeight - valueFontSize - valueMargin : availableHeight)
 	);
+	const validationMessage = validateBarcodeValue(format, barcodeData);
+	setBarcodeError(validationMessage);
+	if (validationMessage) {
+		clearCanvas(canvas);
+		return Promise.resolve();
+	}
 
 	return new Promise((resolve) => {
 		const image = document.createElement("img");
@@ -347,6 +415,8 @@ const updateCanvasBarcode = (canvas) => {
 			});
 		} catch (error) {
 			console.error(error);
+			clearCanvas(canvas);
+			setBarcodeError(error?.message || "Invalid barcode value.");
 			resolve();
 		}
 	});
@@ -572,6 +642,9 @@ const copyToDoubleHeightCanvas = (sourceCanvas, targetCanvas) => {
 const refreshPreview = (layout, canvas) => {
 	const handler = layoutHandlers[layout];
 	if (!handler) return;
+	if (layout !== "barcode") {
+		setBarcodeError("");
+	}
 	if (labelSize.height === 6) {
 		const tempCanvas = createLayoutCanvas();
 		const result = handler(tempCanvas);
