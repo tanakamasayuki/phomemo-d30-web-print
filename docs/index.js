@@ -555,6 +555,15 @@ const initialize = () => {
 			refreshPreview($("#layoutSelect").value, canvas);
 		})
 	);
+	$("#labelPreset").addEventListener("change", (event) => {
+		const [height, width] = event.target.value.split("x").map((value) => Number(value));
+		if (Number.isFinite(height) && Number.isFinite(width)) {
+			$("#labelHeight").value = height;
+			$("#labelWidth").value = width;
+			updateLabelSize(canvas);
+			refreshPreview($("#layoutSelect").value, canvas);
+		}
+	});
 
 	$$("#textInput, #textSize, #textFont, #textAlign, #textBold, #textItalic, #textUnderline").forEach(
 		(input) => input.addEventListener("input", () => refreshPreview("text", canvas))
