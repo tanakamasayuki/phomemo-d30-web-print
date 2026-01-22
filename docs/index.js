@@ -227,6 +227,12 @@ const updateCanvasText = (canvas) => {
 
 const updateCanvasBarcode = (canvas) => {
 	const barcodeData = $("#barcodeInput").value;
+	const text = $("#barcodeTextInput").value;
+	const fontSize = $("#barcodeTextSize").valueAsNumber;
+	const font = $("#barcodeTextFont").value;
+	const fontStyle = $("#barcodeTextItalic").checked ? "italic" : "";
+	const fontWeight = $("#barcodeTextBold").checked ? "bold" : "";
+	const underline = $("#barcodeTextUnderline").checked;
 	const image = document.createElement("img");
 	image.addEventListener("load", () => {
 		const ctx = canvas.getContext("2d");
@@ -234,21 +240,60 @@ const updateCanvasBarcode = (canvas) => {
 		const bounds = getLabelBounds(canvas);
 		const availableWidth = Math.max(0, bounds.right - bounds.left);
 		const availableHeight = Math.max(0, bounds.bottom - bounds.top);
+		const resolvedFontSize = isNaN(fontSize)
+			? Math.max(10, Math.min(48, Math.floor(availableHeight * 0.5)))
+			: Math.max(1, fontSize);
 
 		ctx.translate(canvas.width / 2, canvas.height / 2);
 		ctx.rotate(Math.PI / 2);
 
 		ctx.imageSmoothingEnabled = false;
-		const scale = Math.min(
-			availableWidth / image.width,
-			availableHeight / image.height,
-			1
-		);
-		const drawWidth = image.width * scale;
-		const drawHeight = image.height * scale;
-		const drawX = bounds.left + (availableWidth - drawWidth) / 2;
-		const drawY = bounds.top + (availableHeight - drawHeight) / 2;
-		ctx.drawImage(image, drawX, drawY, drawWidth, drawHeight);
+		if (!text.trim()) {
+			const scale = Math.min(
+				availableWidth / image.width,
+				availableHeight / image.height,
+				1
+			);
+			const drawWidth = image.width * scale;
+			const drawHeight = image.height * scale;
+			const drawX = bounds.left + (availableWidth - drawWidth) / 2;
+			const drawY = bounds.top + (availableHeight - drawHeight) / 2;
+			ctx.drawImage(image, drawX, drawY, drawWidth, drawHeight);
+		} else {
+			const gap = 6;
+			const minTextWidth = 32;
+			const maxImageWidth = Math.max(16, availableWidth - gap - minTextWidth);
+			const scale = Math.min(
+				maxImageWidth / image.width,
+				availableHeight / image.height,
+				1
+			);
+			const drawWidth = image.width * scale;
+			const drawHeight = image.height * scale;
+			const drawX = bounds.left;
+			const drawY = bounds.top + (availableHeight - drawHeight) / 2;
+			ctx.drawImage(image, drawX, drawY, drawWidth, drawHeight);
+
+			const textX = bounds.left + drawWidth + gap;
+			const textY = bounds.top;
+			const textWidth = Math.max(0, availableWidth - drawWidth - gap);
+			const textHeight = availableHeight;
+			if (textWidth > 0 && textHeight > 0) {
+				ctx.fillStyle = "#000";
+				renderTextBlock(ctx, text, {
+					x: textX,
+					y: textY,
+					width: textWidth,
+					height: textHeight,
+					font,
+					fontSize: resolvedFontSize,
+					fontStyle,
+					fontWeight,
+					underline,
+					align: "left",
+				});
+			}
+		}
 
 		ctx.rotate(-Math.PI / 2);
 		ctx.translate(-canvas.width / 2, -canvas.height / 2);
@@ -491,6 +536,9 @@ const initialize = () => {
 	);
 
 	$("#barcodeInput").addEventListener("input", () => refreshPreview("barcode", canvas));
+	$$("#barcodeTextInput, #barcodeTextSize, #barcodeTextFont, #barcodeTextBold, #barcodeTextItalic, #barcodeTextUnderline").forEach(
+		(input) => input.addEventListener("input", () => refreshPreview("barcode", canvas))
+	);
 	$("#imageInput").addEventListener("change", () => refreshPreview("image", canvas));
 	$$("#imageTextInput, #imageTextSize, #imageTextFont, #imageTextBold, #imageTextItalic, #imageTextUnderline").forEach(
 		(input) => input.addEventListener("input", () => refreshPreview("image", canvas))

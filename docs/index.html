@@ -24,7 +24,7 @@
 					<label for="layoutSelect" class="field-label">Choose layout</label>
 					<select id="layoutSelect" class="field-input">
 						<option value="text" selected>Text</option>
-						<option value="barcode">Barcode</option>
+						<option value="barcode">Barcode + Text</option>
 						<option value="image">Image + Text</option>
 						<option value="qr-text">QR Code + Text</option>
 					</select>
@@ -67,9 +67,35 @@
 				</div>
 
 				<div class="card layout-fields" data-layout="barcode" hidden>
-					<h3>Barcode settings</h3>
+					<h3>Barcode + Text settings</h3>
 					<label for="barcodeInput" class="field-label">CODE128 data</label>
 					<input id="barcodeInput" class="field-input" type="text" value="123456" />
+					<label for="barcodeTextInput" class="field-label">Text (optional)</label>
+					<textarea id="barcodeTextInput" class="field-input" rows="2"></textarea>
+					<label for="barcodeTextFont" class="field-label">Font</label>
+					<select id="barcodeTextFont" class="field-input">
+						<option value="'Noto Sans JP', sans-serif">Noto Sans JP</option>
+						<option value="'Montserrat', sans-serif">Montserrat</option>
+						<option value="'Merriweather', serif">Merriweather</option>
+						<option value="'Roboto Mono', monospace">Roboto Mono</option>
+						<option value="sans-serif">System Sans</option>
+					</select>
+					<label for="barcodeTextSize" class="field-label">Font size (px)</label>
+					<input id="barcodeTextSize" class="field-input" type="number" value="24" min="1" />
+					<div class="toggle-row">
+						<label class="toggle">
+							<input type="checkbox" id="barcodeTextBold" />
+							<span>Bold</span>
+						</label>
+						<label class="toggle">
+							<input type="checkbox" id="barcodeTextItalic" />
+							<span>Italic</span>
+						</label>
+						<label class="toggle">
+							<input type="checkbox" id="barcodeTextUnderline" />
+							<span>Underline</span>
+						</label>
+					</div>
 				</div>
 
 				<div class="card layout-fields" data-layout="image" hidden>
