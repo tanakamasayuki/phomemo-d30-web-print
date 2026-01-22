@@ -4,7 +4,7 @@
 <head>
 	<meta charset="utf-8" />
 	<meta name="viewport" content="width=device-width, initial-scale=1" />
-	<title>Label Layout Builder</title>
+	<title data-i18n="app.title">Label Layout Builder</title>
 	<link rel="stylesheet" href="./index.css" />
 </head>
 
@@ -13,28 +13,28 @@
 		<header class="hero">
 			<div>
 				<p class="eyebrow">Phomemo D30</p>
-				<h1>Web Bluetooth Print</h1>
+				<h1 data-i18n="hero.title">Web Bluetooth Print</h1>
 			</div>
 		</header>
 
 		<main class="main">
 			<section class="controls">
 				<div class="card">
-					<h2>Layout</h2>
-					<label for="layoutSelect" class="field-label">Choose layout</label>
+					<h2 data-i18n="layout.title">Layout</h2>
+					<label for="layoutSelect" class="field-label" data-i18n="layout.choose">Choose layout</label>
 					<select id="layoutSelect" class="field-input">
-						<option value="text" selected>Text</option>
-						<option value="image">Image + Text</option>
-						<option value="barcode">Barcode + Text</option>
-						<option value="qr-text">QR Code + Text</option>
+						<option value="text" selected data-i18n="layout.text">Text</option>
+						<option value="image" data-i18n="layout.imageText">Image + Text</option>
+						<option value="barcode" data-i18n="layout.barcodeText">Barcode + Text</option>
+						<option value="qr-text" data-i18n="layout.qrText">QR Code + Text</option>
 					</select>
 				</div>
 
 				<div class="card layout-fields" data-layout="text">
-					<h3>Text settings</h3>
-					<label for="textInput" class="field-label">Text</label>
+					<h3 data-i18n="text.title">Text settings</h3>
+					<label for="textInput" class="field-label" data-i18n="text.label">Text</label>
 					<textarea id="textInput" class="field-input" rows="3">Phomemo D30</textarea>
-					<label for="textFont" class="field-label">Font</label>
+					<label for="textFont" class="field-label" data-i18n="common.font">Font</label>
 					<select id="textFont" class="field-input">
 						<option value="'Noto Sans JP', sans-serif" style="font-family: 'Noto Sans JP', sans-serif;">Noto
 							Sans JP</option>
@@ -48,50 +48,50 @@
 							Mono</option>
 						<option value="sans-serif" style="font-family: sans-serif;">System Sans</option>
 					</select>
-					<label for="textSize" class="field-label">Font size (px)</label>
+					<label for="textSize" class="field-label" data-i18n="common.fontSize">Font size (px)</label>
 					<input id="textSize" class="field-input" type="number" value="48" min="1" />
-					<label for="textAlign" class="field-label">Alignment</label>
+					<label for="textAlign" class="field-label" data-i18n="common.alignment">Alignment</label>
 					<select id="textAlign" class="field-input">
-						<option value="center" selected>Center</option>
-						<option value="left">Left</option>
-						<option value="right">Right</option>
+						<option value="center" selected data-i18n="common.alignCenter">Center</option>
+						<option value="left" data-i18n="common.alignLeft">Left</option>
+						<option value="right" data-i18n="common.alignRight">Right</option>
 					</select>
 					<div class="toggle-row">
 						<label class="toggle">
 							<input type="checkbox" id="textBold" />
-							<span>Bold</span>
+							<span data-i18n="common.bold">Bold</span>
 						</label>
 						<label class="toggle">
 							<input type="checkbox" id="textItalic" />
-							<span>Italic</span>
+							<span data-i18n="common.italic">Italic</span>
 						</label>
 						<label class="toggle">
 							<input type="checkbox" id="textUnderline" />
-							<span>Underline</span>
+							<span data-i18n="common.underline">Underline</span>
 						</label>
 					</div>
 				</div>
 
 				<div class="card layout-fields" data-layout="barcode" hidden>
-					<h3>Barcode + Text settings</h3>
-					<label for="barcodeFormat" class="field-label">Barcode type</label>
+					<h3 data-i18n="barcode.title">Barcode + Text settings</h3>
+					<label for="barcodeFormat" class="field-label" data-i18n="barcode.type">Barcode type</label>
 					<select id="barcodeFormat" class="field-input">
-						<option value="CODE128" selected>CODE128</option>
-						<option value="CODE39">CODE39</option>
-						<option value="EAN13">EAN-13(JAN-13)</option>
-						<option value="EAN8">EAN-8(JAN-8)</option>
-						<option value="UPC">UPC</option>
+						<option value="CODE128" selected data-i18n="barcode.type.code128">CODE128</option>
+						<option value="CODE39" data-i18n="barcode.type.code39">CODE39</option>
+						<option value="EAN13" data-i18n="barcode.type.ean13">EAN-13(JAN-13)</option>
+						<option value="EAN8" data-i18n="barcode.type.ean8">EAN-8(JAN-8)</option>
+						<option value="UPC" data-i18n="barcode.type.upc">UPC</option>
 					</select>
-					<label for="barcodeInput" class="field-label">Barcode value</label>
+					<label for="barcodeInput" class="field-label" data-i18n="barcode.value">Barcode value</label>
 					<input id="barcodeInput" class="field-input" type="text" value="123456" />
 					<p class="status error" id="barcodeError" aria-live="polite" hidden></p>
 					<label class="toggle">
 						<input type="checkbox" id="barcodeShowValue" checked />
-						<span>Show barcode value</span>
+						<span data-i18n="barcode.showValue">Show barcode value</span>
 					</label>
-					<label for="barcodeTextInput" class="field-label">Text (optional)</label>
+					<label for="barcodeTextInput" class="field-label" data-i18n="common.textOptional">Text (optional)</label>
 					<textarea id="barcodeTextInput" class="field-input" rows="2"></textarea>
-					<label for="barcodeTextFont" class="field-label">Font</label>
+					<label for="barcodeTextFont" class="field-label" data-i18n="common.font">Font</label>
 					<select id="barcodeTextFont" class="field-input">
 						<option value="'Noto Sans JP', sans-serif" style="font-family: 'Noto Sans JP', sans-serif;">Noto
 							Sans JP</option>
@@ -105,31 +105,31 @@
 							Mono</option>
 						<option value="sans-serif" style="font-family: sans-serif;">System Sans</option>
 					</select>
-					<label for="barcodeTextSize" class="field-label">Font size (px)</label>
+					<label for="barcodeTextSize" class="field-label" data-i18n="common.fontSize">Font size (px)</label>
 					<input id="barcodeTextSize" class="field-input" type="number" value="24" min="1" />
 					<div class="toggle-row">
 						<label class="toggle">
 							<input type="checkbox" id="barcodeTextBold" checked />
-							<span>Bold</span>
+							<span data-i18n="common.bold">Bold</span>
 						</label>
 						<label class="toggle">
 							<input type="checkbox" id="barcodeTextItalic" />
-							<span>Italic</span>
+							<span data-i18n="common.italic">Italic</span>
 						</label>
 						<label class="toggle">
 							<input type="checkbox" id="barcodeTextUnderline" />
-							<span>Underline</span>
+							<span data-i18n="common.underline">Underline</span>
 						</label>
 					</div>
 				</div>
 
 				<div class="card layout-fields" data-layout="image" hidden>
-					<h3>Image + Text settings</h3>
-					<label for="imageInput" class="field-label">Image file</label>
+					<h3 data-i18n="image.title">Image + Text settings</h3>
+					<label for="imageInput" class="field-label" data-i18n="image.file">Image file</label>
 					<input id="imageInput" class="field-input" type="file" accept="image/*" />
-					<label for="imageTextInput" class="field-label">Text (optional)</label>
+					<label for="imageTextInput" class="field-label" data-i18n="common.textOptional">Text (optional)</label>
 					<textarea id="imageTextInput" class="field-input" rows="2"></textarea>
-					<label for="imageTextFont" class="field-label">Font</label>
+					<label for="imageTextFont" class="field-label" data-i18n="common.font">Font</label>
 					<select id="imageTextFont" class="field-input">
 						<option value="'Noto Sans JP', sans-serif" style="font-family: 'Noto Sans JP', sans-serif;">Noto
 							Sans JP</option>
@@ -143,31 +143,31 @@
 							Mono</option>
 						<option value="sans-serif" style="font-family: sans-serif;">System Sans</option>
 					</select>
-					<label for="imageTextSize" class="field-label">Font size (px)</label>
+					<label for="imageTextSize" class="field-label" data-i18n="common.fontSize">Font size (px)</label>
 					<input id="imageTextSize" class="field-input" type="number" value="24" min="1" />
 					<div class="toggle-row">
 						<label class="toggle">
 							<input type="checkbox" id="imageTextBold" checked />
-							<span>Bold</span>
+							<span data-i18n="common.bold">Bold</span>
 						</label>
 						<label class="toggle">
 							<input type="checkbox" id="imageTextItalic" />
-							<span>Italic</span>
+							<span data-i18n="common.italic">Italic</span>
 						</label>
 						<label class="toggle">
 							<input type="checkbox" id="imageTextUnderline" />
-							<span>Underline</span>
+							<span data-i18n="common.underline">Underline</span>
 						</label>
 					</div>
 				</div>
 
 				<div class="card layout-fields" data-layout="qr-text" hidden>
-					<h3>QR Code + Text settings</h3>
-					<label for="qrTextData" class="field-label">QR code data</label>
+					<h3 data-i18n="qr.title">QR Code + Text settings</h3>
+					<label for="qrTextData" class="field-label" data-i18n="qr.data">QR code data</label>
 					<input id="qrTextData" class="field-input" type="text" value="https://example.com" />
-					<label for="qrTextInput" class="field-label">Text</label>
+					<label for="qrTextInput" class="field-label" data-i18n="text.label">Text</label>
 					<textarea id="qrTextInput" class="field-input" rows="2">Hello QR</textarea>
-					<label for="qrTextFont" class="field-label">Font</label>
+					<label for="qrTextFont" class="field-label" data-i18n="common.font">Font</label>
 					<select id="qrTextFont" class="field-input">
 						<option value="'Noto Sans JP', sans-serif" style="font-family: 'Noto Sans JP', sans-serif;">Noto
 							Sans JP</option>
@@ -181,26 +181,26 @@
 							Mono</option>
 						<option value="sans-serif" style="font-family: sans-serif;">System Sans</option>
 					</select>
-					<label for="qrTextSize" class="field-label">Font size (px)</label>
+					<label for="qrTextSize" class="field-label" data-i18n="common.fontSize">Font size (px)</label>
 					<input id="qrTextSize" class="field-input" type="number" value="24" min="1" />
-					<label for="qrTextAlign" class="field-label">Alignment</label>
+					<label for="qrTextAlign" class="field-label" data-i18n="common.alignment">Alignment</label>
 					<select id="qrTextAlign" class="field-input">
-						<option value="center" selected>Center</option>
-						<option value="left">Left</option>
-						<option value="right">Right</option>
+						<option value="center" selected data-i18n="common.alignCenter">Center</option>
+						<option value="left" data-i18n="common.alignLeft">Left</option>
+						<option value="right" data-i18n="common.alignRight">Right</option>
 					</select>
 					<div class="toggle-row">
 						<label class="toggle">
 							<input type="checkbox" id="qrTextBold" checked />
-							<span>Bold</span>
+							<span data-i18n="common.bold">Bold</span>
 						</label>
 						<label class="toggle">
 							<input type="checkbox" id="qrTextItalic" />
-							<span>Italic</span>
+							<span data-i18n="common.italic">Italic</span>
 						</label>
 						<label class="toggle">
 							<input type="checkbox" id="qrTextUnderline" />
-							<span>Underline</span>
+							<span data-i18n="common.underline">Underline</span>
 						</label>
 					</div>
 				</div>
@@ -210,8 +210,8 @@
 			<section class="preview">
 				<div class="card">
 					<div class="preview-header">
-						<h2>Preview</h2>
-						<p>Canvas is rotated to match printer orientation.</p>
+						<h2 data-i18n="preview.title">Preview</h2>
+						<p data-i18n="preview.subtitle">Canvas is rotated to match printer orientation.</p>
 					</div>
 					<div class="preview-stage">
 						<div class="preview-frame">
@@ -220,21 +220,21 @@
 					</div>
 				</div>
 				<div class="card print-card">
-					<h2>Print</h2>
-					<p class="helper">Connect to the printer and send the current preview.</p>
-					<label for="printCopies" class="field-label">Copies</label>
+					<h2 data-i18n="print.title">Print</h2>
+					<p class="helper" data-i18n="print.helper">Connect to the printer and send the current preview.</p>
+					<label for="printCopies" class="field-label" data-i18n="print.copies">Copies</label>
 					<input id="printCopies" class="field-input" type="number" value="1" min="1" />
 					<p></p>
-					<button type="button" class="primary-button" id="printButton">
+					<button type="button" class="primary-button" id="printButton" data-i18n="print.connect">
 						Connect &amp; print
 					</button>
 					<p class="status" id="printStatus" aria-live="polite"></p>
 				</div>
 				<div class="card">
-					<h2>Label size</h2>
-					<label for="labelPreset" class="field-label">Preset (Height x Width)</label>
+					<h2 data-i18n="label.title">Label size</h2>
+					<label for="labelPreset" class="field-label" data-i18n="label.preset">Preset (Height x Width)</label>
 					<select id="labelPreset" class="field-input">
-						<option value="" selected>Choose a preset</option>
+						<option value="" selected data-i18n="label.choosePreset">Choose a preset</option>
 						<option value="6x22">6 x 22 mm</option>
 						<option value="12x40">12 x 40 mm</option>
 						<option value="14x30">14 x 30 mm</option>
@@ -242,24 +242,24 @@
 					</select>
 					<div class="field-row">
 						<div>
-							<label for="labelHeight" class="field-label">Height (mm)</label>
+							<label for="labelHeight" class="field-label" data-i18n="label.height">Height (mm)</label>
 							<input id="labelHeight" class="field-input" type="number" value="12" min="1" />
 						</div>
 						<div>
-							<label for="labelWidth" class="field-label">Width (mm)</label>
+							<label for="labelWidth" class="field-label" data-i18n="label.width">Width (mm)</label>
 							<input id="labelWidth" class="field-input" type="number" value="40" min="1" />
 						</div>
 						<br>
 						<div>
-							<label for="labelMarginY" class="field-label">Margin Y (mm)</label>
+							<label for="labelMarginY" class="field-label" data-i18n="label.marginY">Margin Y (mm)</label>
 							<input id="labelMarginY" class="field-input" type="number" value="0" min="0" />
 						</div>
 						<div>
-							<label for="labelMarginX" class="field-label">Margin X (mm)</label>
+							<label for="labelMarginX" class="field-label" data-i18n="label.marginX">Margin X (mm)</label>
 							<input id="labelMarginX" class="field-input" type="number" value="2" min="0" />
 						</div>
 					</div>
-					<button type="button" class="secondary-button" id="resetButton">Reset</button>
+					<button type="button" class="secondary-button" id="resetButton" data-i18n="common.reset">Reset</button>
 				</div>
 			</section>
 		</main>

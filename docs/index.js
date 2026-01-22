@@ -71,6 +71,363 @@ const $ = (selector) => document.querySelector(selector);
 const $$ = (selector) => document.querySelectorAll(selector);
 
 const STORAGE_KEY = "phomemo-d30-web-print-state";
+let currentLanguage = "en";
+
+const I18N = {
+	en: {
+		"app.title": "Label Layout Builder",
+		"hero.title": "Web Bluetooth Print",
+		"layout.title": "Layout",
+		"layout.choose": "Choose layout",
+		"layout.text": "Text",
+		"layout.imageText": "Image + Text",
+		"layout.barcodeText": "Barcode + Text",
+		"layout.qrText": "QR Code + Text",
+		"text.title": "Text settings",
+		"text.label": "Text",
+		"barcode.title": "Barcode + Text settings",
+		"barcode.type": "Barcode type",
+		"barcode.type.code128": "CODE128",
+		"barcode.type.code39": "CODE39",
+		"barcode.type.ean13": "EAN-13(JAN-13)",
+		"barcode.type.ean8": "EAN-8(JAN-8)",
+		"barcode.type.upc": "UPC",
+		"barcode.value": "Barcode value",
+		"barcode.showValue": "Show barcode value",
+		"image.title": "Image + Text settings",
+		"image.file": "Image file",
+		"qr.title": "QR Code + Text settings",
+		"qr.data": "QR code data",
+		"preview.title": "Preview",
+		"preview.subtitle": "Canvas is rotated to match printer orientation.",
+		"print.title": "Print",
+		"print.helper": "Connect to the printer and send the current preview.",
+		"print.copies": "Copies",
+		"print.connect": "Connect & print",
+		"label.title": "Label size",
+		"label.preset": "Preset (Height x Width)",
+		"label.choosePreset": "Choose a preset",
+		"label.height": "Height (mm)",
+		"label.width": "Width (mm)",
+		"label.marginY": "Margin Y (mm)",
+		"label.marginX": "Margin X (mm)",
+		"common.font": "Font",
+		"common.fontSize": "Font size (px)",
+		"common.alignment": "Alignment",
+		"common.alignCenter": "Center",
+		"common.alignLeft": "Left",
+		"common.alignRight": "Right",
+		"common.bold": "Bold",
+		"common.italic": "Italic",
+		"common.underline": "Underline",
+		"common.textOptional": "Text (optional)",
+		"common.reset": "Reset",
+		"print.status.connected": "Connected.",
+		"print.status.disconnected": "Disconnected.",
+		"print.status.connecting": "Connecting...",
+		"print.status.connectingPrinter": "Connecting to printer...",
+		"print.status.sent": "Sent to printer.",
+		"print.status.sentCopies": "Sent {count} copies.",
+		"print.status.failed": "Failed to print. Check console.",
+		"print.button.print": "Print",
+		"print.button.connect": "Connect & print",
+		"error.barcode.required": "Barcode value is required.",
+		"error.barcode.ean13": "EAN-13 accepts 12 or 13 digits only.",
+		"error.barcode.ean8": "EAN-8 accepts 7 or 8 digits only.",
+		"error.barcode.upc": "UPC accepts 11 or 12 digits only.",
+		"error.barcode.code39":
+			"CODE39 accepts A-Z, 0-9, space, and - . $ / + % only.",
+		"error.barcode.code128": "CODE128 accepts ASCII printable characters only.",
+		"error.barcode.invalid": "Invalid barcode value.",
+	},
+	ja: {
+		"app.title": "ラベルレイアウトビルダー",
+		"hero.title": "Web Bluetooth Print",
+		"layout.title": "レイアウト",
+		"layout.choose": "レイアウトを選択",
+		"layout.text": "テキスト",
+		"layout.imageText": "画像＋テキスト",
+		"layout.barcodeText": "バーコード＋テキスト",
+		"layout.qrText": "QRコード＋テキスト",
+		"text.title": "テキスト設定",
+		"text.label": "テキスト",
+		"barcode.title": "バーコード＋テキスト設定",
+		"barcode.type": "バーコード種類",
+		"barcode.type.code128": "CODE128",
+		"barcode.type.code39": "CODE39",
+		"barcode.type.ean13": "EAN-13(JAN-13)",
+		"barcode.type.ean8": "EAN-8(JAN-8)",
+		"barcode.type.upc": "UPC",
+		"barcode.value": "バーコード値",
+		"barcode.showValue": "バーコード値を表示",
+		"image.title": "画像＋テキスト設定",
+		"image.file": "画像ファイル",
+		"qr.title": "QRコード＋テキスト設定",
+		"qr.data": "QRコードデータ",
+		"preview.title": "プレビュー",
+		"preview.subtitle": "キャンバスはプリンターの向きに合わせて回転しています。",
+		"print.title": "印刷",
+		"print.helper": "プリンターに接続して現在のプレビューを送信します。",
+		"print.copies": "部数",
+		"print.connect": "接続して印刷",
+		"label.title": "ラベルサイズ",
+		"label.preset": "プリセット（縦×横）",
+		"label.choosePreset": "プリセットを選択",
+		"label.height": "高さ (mm)",
+		"label.width": "幅 (mm)",
+		"label.marginY": "余白Y (mm)",
+		"label.marginX": "余白X (mm)",
+		"common.font": "フォント",
+		"common.fontSize": "フォントサイズ (px)",
+		"common.alignment": "配置",
+		"common.alignCenter": "中央",
+		"common.alignLeft": "左寄せ",
+		"common.alignRight": "右寄せ",
+		"common.bold": "太字",
+		"common.italic": "斜体",
+		"common.underline": "下線",
+		"common.textOptional": "テキスト（任意）",
+		"common.reset": "初期化",
+		"print.status.connected": "接続済み。",
+		"print.status.disconnected": "切断しました。",
+		"print.status.connecting": "接続中...",
+		"print.status.connectingPrinter": "プリンターに接続中...",
+		"print.status.sent": "送信しました。",
+		"print.status.sentCopies": "{count}部送信しました。",
+		"print.status.failed": "印刷に失敗しました。コンソールを確認してください。",
+		"print.button.print": "印刷",
+		"print.button.connect": "接続して印刷",
+		"error.barcode.required": "バーコード値を入力してください。",
+		"error.barcode.ean13": "EAN-13は12桁または13桁の数字のみです。",
+		"error.barcode.ean8": "EAN-8は7桁または8桁の数字のみです。",
+		"error.barcode.upc": "UPCは11桁または12桁の数字のみです。",
+		"error.barcode.code39": "CODE39はA-Z、0-9、スペース、- . $ / + %のみです。",
+		"error.barcode.code128": "CODE128は表示可能なASCII文字のみです。",
+		"error.barcode.invalid": "バーコード値が無効です。",
+	},
+	zh: {
+		"app.title": "标签版式生成器",
+		"hero.title": "Web Bluetooth Print",
+		"layout.title": "布局",
+		"layout.choose": "选择布局",
+		"layout.text": "文本",
+		"layout.imageText": "图片 + 文本",
+		"layout.barcodeText": "条码 + 文本",
+		"layout.qrText": "二维码 + 文本",
+		"text.title": "文本设置",
+		"text.label": "文本",
+		"barcode.title": "条码 + 文本设置",
+		"barcode.type": "条码类型",
+		"barcode.type.code128": "CODE128",
+		"barcode.type.code39": "CODE39",
+		"barcode.type.ean13": "EAN-13(JAN-13)",
+		"barcode.type.ean8": "EAN-8(JAN-8)",
+		"barcode.type.upc": "UPC",
+		"barcode.value": "条码值",
+		"barcode.showValue": "显示条码值",
+		"image.title": "图片 + 文本设置",
+		"image.file": "图片文件",
+		"qr.title": "二维码 + 文本设置",
+		"qr.data": "二维码数据",
+		"preview.title": "预览",
+		"preview.subtitle": "画布已旋转以匹配打印机方向。",
+		"print.title": "打印",
+		"print.helper": "连接打印机并发送当前预览。",
+		"print.copies": "份数",
+		"print.connect": "连接并打印",
+		"label.title": "标签尺寸",
+		"label.preset": "预设（高 × 宽）",
+		"label.choosePreset": "选择预设",
+		"label.height": "高度 (mm)",
+		"label.width": "宽度 (mm)",
+		"label.marginY": "垂直边距 (mm)",
+		"label.marginX": "水平边距 (mm)",
+		"common.font": "字体",
+		"common.fontSize": "字号 (px)",
+		"common.alignment": "对齐",
+		"common.alignCenter": "居中",
+		"common.alignLeft": "左对齐",
+		"common.alignRight": "右对齐",
+		"common.bold": "加粗",
+		"common.italic": "斜体",
+		"common.underline": "下划线",
+		"common.textOptional": "文本（可选）",
+		"common.reset": "重置",
+		"print.status.connected": "已连接。",
+		"print.status.disconnected": "已断开。",
+		"print.status.connecting": "连接中...",
+		"print.status.connectingPrinter": "正在连接打印机...",
+		"print.status.sent": "已发送到打印机。",
+		"print.status.sentCopies": "已发送 {count} 份。",
+		"print.status.failed": "打印失败。请检查控制台。",
+		"print.button.print": "打印",
+		"print.button.connect": "连接并打印",
+		"error.barcode.required": "请输入条码值。",
+		"error.barcode.ean13": "EAN-13 仅支持12或13位数字。",
+		"error.barcode.ean8": "EAN-8 仅支持7或8位数字。",
+		"error.barcode.upc": "UPC 仅支持11或12位数字。",
+		"error.barcode.code39": "CODE39 仅支持 A-Z、0-9、空格以及 - . $ / + %。",
+		"error.barcode.code128": "CODE128 仅支持可打印的 ASCII 字符。",
+		"error.barcode.invalid": "条码值无效。",
+	},
+	fr: {
+		"app.title": "Générateur de mise en page",
+		"hero.title": "Web Bluetooth Print",
+		"layout.title": "Disposition",
+		"layout.choose": "Choisir la disposition",
+		"layout.text": "Texte",
+		"layout.imageText": "Image + texte",
+		"layout.barcodeText": "Code-barres + texte",
+		"layout.qrText": "QR code + texte",
+		"text.title": "Paramètres du texte",
+		"text.label": "Texte",
+		"barcode.title": "Paramètres code-barres + texte",
+		"barcode.type": "Type de code-barres",
+		"barcode.type.code128": "CODE128",
+		"barcode.type.code39": "CODE39",
+		"barcode.type.ean13": "EAN-13(JAN-13)",
+		"barcode.type.ean8": "EAN-8(JAN-8)",
+		"barcode.type.upc": "UPC",
+		"barcode.value": "Valeur du code-barres",
+		"barcode.showValue": "Afficher la valeur du code-barres",
+		"image.title": "Paramètres image + texte",
+		"image.file": "Fichier image",
+		"qr.title": "Paramètres QR code + texte",
+		"qr.data": "Données du QR code",
+		"preview.title": "Aperçu",
+		"preview.subtitle": "Le canevas est tourné pour correspondre à l'orientation de l'imprimante.",
+		"print.title": "Imprimer",
+		"print.helper": "Connectez l'imprimante et envoyez l'aperçu actuel.",
+		"print.copies": "Copies",
+		"print.connect": "Connecter et imprimer",
+		"label.title": "Format d'étiquette",
+		"label.preset": "Préréglage (hauteur × largeur)",
+		"label.choosePreset": "Choisir un préréglage",
+		"label.height": "Hauteur (mm)",
+		"label.width": "Largeur (mm)",
+		"label.marginY": "Marge Y (mm)",
+		"label.marginX": "Marge X (mm)",
+		"common.font": "Police",
+		"common.fontSize": "Taille de police (px)",
+		"common.alignment": "Alignement",
+		"common.alignCenter": "Centré",
+		"common.alignLeft": "Gauche",
+		"common.alignRight": "Droite",
+		"common.bold": "Gras",
+		"common.italic": "Italique",
+		"common.underline": "Souligné",
+		"common.textOptional": "Texte (optionnel)",
+		"common.reset": "Réinitialiser",
+		"print.status.connected": "Connecté.",
+		"print.status.disconnected": "Déconnecté.",
+		"print.status.connecting": "Connexion...",
+		"print.status.connectingPrinter": "Connexion à l'imprimante...",
+		"print.status.sent": "Envoyé à l'imprimante.",
+		"print.status.sentCopies": "{count} copies envoyées.",
+		"print.status.failed": "Échec de l'impression. Vérifiez la console.",
+		"print.button.print": "Imprimer",
+		"print.button.connect": "Connecter et imprimer",
+		"error.barcode.required": "La valeur du code-barres est requise.",
+		"error.barcode.ean13": "EAN-13 accepte uniquement 12 ou 13 chiffres.",
+		"error.barcode.ean8": "EAN-8 accepte uniquement 7 ou 8 chiffres.",
+		"error.barcode.upc": "UPC accepte uniquement 11 ou 12 chiffres.",
+		"error.barcode.code39": "CODE39 accepte uniquement A-Z, 0-9, espace et - . $ / + %.",
+		"error.barcode.code128": "CODE128 accepte uniquement les caractères ASCII imprimables.",
+		"error.barcode.invalid": "Valeur de code-barres invalide.",
+	},
+	es: {
+		"app.title": "Generador de diseño",
+		"hero.title": "Web Bluetooth Print",
+		"layout.title": "Diseño",
+		"layout.choose": "Elegir diseño",
+		"layout.text": "Texto",
+		"layout.imageText": "Imagen + texto",
+		"layout.barcodeText": "Código de barras + texto",
+		"layout.qrText": "QR + texto",
+		"text.title": "Configuración de texto",
+		"text.label": "Texto",
+		"barcode.title": "Configuración de código de barras + texto",
+		"barcode.type": "Tipo de código de barras",
+		"barcode.type.code128": "CODE128",
+		"barcode.type.code39": "CODE39",
+		"barcode.type.ean13": "EAN-13(JAN-13)",
+		"barcode.type.ean8": "EAN-8(JAN-8)",
+		"barcode.type.upc": "UPC",
+		"barcode.value": "Valor del código de barras",
+		"barcode.showValue": "Mostrar valor del código de barras",
+		"image.title": "Configuración de imagen + texto",
+		"image.file": "Archivo de imagen",
+		"qr.title": "Configuración de QR + texto",
+		"qr.data": "Datos del QR",
+		"preview.title": "Vista previa",
+		"preview.subtitle": "El lienzo se rota para coincidir con la orientación de la impresora.",
+		"print.title": "Imprimir",
+		"print.helper": "Conecta la impresora y envía la vista previa actual.",
+		"print.copies": "Copias",
+		"print.connect": "Conectar e imprimir",
+		"label.title": "Tamaño de etiqueta",
+		"label.preset": "Preajuste (alto × ancho)",
+		"label.choosePreset": "Elegir preajuste",
+		"label.height": "Alto (mm)",
+		"label.width": "Ancho (mm)",
+		"label.marginY": "Margen Y (mm)",
+		"label.marginX": "Margen X (mm)",
+		"common.font": "Fuente",
+		"common.fontSize": "Tamaño de fuente (px)",
+		"common.alignment": "Alineación",
+		"common.alignCenter": "Centro",
+		"common.alignLeft": "Izquierda",
+		"common.alignRight": "Derecha",
+		"common.bold": "Negrita",
+		"common.italic": "Cursiva",
+		"common.underline": "Subrayado",
+		"common.textOptional": "Texto (opcional)",
+		"common.reset": "Restablecer",
+		"print.status.connected": "Conectado.",
+		"print.status.disconnected": "Desconectado.",
+		"print.status.connecting": "Conectando...",
+		"print.status.connectingPrinter": "Conectando a la impresora...",
+		"print.status.sent": "Enviado a la impresora.",
+		"print.status.sentCopies": "Se enviaron {count} copias.",
+		"print.status.failed": "Error al imprimir. Revisa la consola.",
+		"print.button.print": "Imprimir",
+		"print.button.connect": "Conectar e imprimir",
+		"error.barcode.required": "El valor del código de barras es obligatorio.",
+		"error.barcode.ean13": "EAN-13 solo acepta 12 o 13 dígitos.",
+		"error.barcode.ean8": "EAN-8 solo acepta 7 u 8 dígitos.",
+		"error.barcode.upc": "UPC solo acepta 11 o 12 dígitos.",
+		"error.barcode.code39": "CODE39 solo acepta A-Z, 0-9, espacio y - . $ / + %.",
+		"error.barcode.code128": "CODE128 solo acepta caracteres ASCII imprimibles.",
+		"error.barcode.invalid": "Valor de código de barras no válido.",
+	},
+};
+
+const getLanguage = () => {
+	const raw = (navigator.language || "en").toLowerCase();
+	if (raw.startsWith("ja")) return "ja";
+	if (raw.startsWith("zh")) return "zh";
+	if (raw.startsWith("fr")) return "fr";
+	if (raw.startsWith("es")) return "es";
+	return "en";
+};
+
+const t = (key, params = {}) => {
+	const dict = I18N[currentLanguage] || I18N.en;
+	let template = dict[key] || I18N.en[key] || key;
+	Object.entries(params).forEach(([name, value]) => {
+		template = template.replaceAll(`{${name}}`, String(value));
+	});
+	return template;
+};
+
+const applyTranslations = () => {
+	currentLanguage = getLanguage();
+	document.documentElement.lang = currentLanguage;
+	$$("[data-i18n]").forEach((element) => {
+		element.textContent = t(element.dataset.i18n);
+	});
+	document.title = t("app.title");
+};
 
 const setBarcodeError = (message) => {
 	const error = $("#barcodeError");
@@ -96,35 +453,35 @@ const setBarcodeError = (message) => {
 const validateBarcodeValue = (format, value) => {
 	const trimmed = value.trim();
 	if (!trimmed) {
-		return "Barcode value is required.";
+		return "error.barcode.required";
 	}
 
 	switch (format) {
 		case "EAN13":
 			if (!/^\d{12,13}$/.test(trimmed)) {
-				return "EAN-13 accepts 12 or 13 digits only.";
+				return "error.barcode.ean13";
 			}
 			return "";
 		case "EAN8":
 			if (!/^\d{7,8}$/.test(trimmed)) {
-				return "EAN-8 accepts 7 or 8 digits only.";
+				return "error.barcode.ean8";
 			}
 			return "";
 		case "UPC":
 			if (!/^\d{11,12}$/.test(trimmed)) {
-				return "UPC accepts 11 or 12 digits only.";
+				return "error.barcode.upc";
 			}
 			return "";
 		case "CODE39":
 			if (!/^[0-9A-Z .\-$/+%]+$/.test(trimmed)) {
-				return "CODE39 accepts A-Z, 0-9, space, and - . $ / + % only.";
+				return "error.barcode.code39";
 			}
 			return "";
 		case "CODE128": {
 			for (let i = 0; i < trimmed.length; i += 1) {
 				const code = trimmed.charCodeAt(i);
 				if (code < 32 || code > 126) {
-					return "CODE128 accepts ASCII printable characters only.";
+					return "error.barcode.code128";
 				}
 			}
 			return "";
@@ -374,7 +731,8 @@ const updateCanvasBarcode = (canvas) => {
 		1,
 		Math.round(showValue ? availableHeight - valueFontSize - valueMargin : availableHeight)
 	);
-	const validationMessage = validateBarcodeValue(format, barcodeData);
+	const validationKey = validateBarcodeValue(format, barcodeData);
+	const validationMessage = validationKey ? t(validationKey) : "";
 	setBarcodeError(validationMessage);
 	if (validationMessage) {
 		clearCanvas(canvas);
@@ -473,7 +831,7 @@ const updateCanvasBarcode = (canvas) => {
 		} catch (error) {
 			console.error(error);
 			clearCanvas(canvas);
-			setBarcodeError(error?.message || "Invalid barcode value.");
+			setBarcodeError(t("error.barcode.invalid"));
 			resolve();
 		}
 	});
@@ -722,6 +1080,7 @@ const initialize = () => {
 	const printCopies = $("#printCopies");
 	let printerDevice = null;
 	let printerCharacteristic = null;
+	applyTranslations();
 	restoreFormState();
 	updateLabelSize(canvas);
 	setActiveLayout($("#layoutSelect").value, canvas);
@@ -803,13 +1162,13 @@ const initialize = () => {
 			return printerDevice.gatt
 				.connect()
 				.then((server) => server.getPrimaryService("0000ff00-0000-1000-8000-00805f9b34fb"))
-				.then((service) => service.getCharacteristic("0000ff02-0000-1000-8000-00805f9b34fb"))
-				.then((characteristic) => {
-					printerCharacteristic = characteristic;
-					printButton.textContent = "Print";
-					printStatus.textContent = "Connected.";
-					return characteristic;
-				});
+					.then((service) => service.getCharacteristic("0000ff02-0000-1000-8000-00805f9b34fb"))
+					.then((characteristic) => {
+						printerCharacteristic = characteristic;
+						printButton.textContent = t("print.button.print");
+						printStatus.textContent = t("print.status.connected");
+						return characteristic;
+					});
 		};
 
 		if (printerDevice) {
@@ -824,8 +1183,8 @@ const initialize = () => {
 			.then((device) => {
 				printerDevice = device;
 				device.addEventListener("gattserverdisconnected", () => {
-					printButton.textContent = "Connect & print";
-					printStatus.textContent = "Disconnected.";
+					printButton.textContent = t("print.button.connect");
+					printStatus.textContent = t("print.status.disconnected");
 				});
 				return connectDevice();
 			});
@@ -834,7 +1193,9 @@ const initialize = () => {
 	printButton.addEventListener("click", () => {
 		printButton.disabled = true;
 		const copies = Math.max(1, Math.floor(printCopies.valueAsNumber || 1));
-		printStatus.textContent = printerDevice ? "Connecting..." : "Connecting to printer...";
+		printStatus.textContent = printerDevice
+			? t("print.status.connecting")
+			: t("print.status.connectingPrinter");
 		getPrinterCharacteristic()
 			.then((characteristic) => {
 				const jobs = Array.from({ length: copies }, () => () =>
@@ -843,11 +1204,14 @@ const initialize = () => {
 				return jobs.reduce((promise, job) => promise.then(job), Promise.resolve());
 			})
 			.then(() => {
-				printStatus.textContent = copies > 1 ? `Sent ${copies} copies.` : "Sent to printer.";
+				printStatus.textContent =
+					copies > 1
+						? t("print.status.sentCopies", { count: copies })
+						: t("print.status.sent");
 			})
 			.catch((error) => {
 				console.error(error);
-				printStatus.textContent = "Failed to print. Check console.";
+				printStatus.textContent = t("print.status.failed");
 			})
 			.finally(() => {
 				printButton.disabled = false;
