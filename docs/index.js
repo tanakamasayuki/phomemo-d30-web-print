@@ -39,7 +39,7 @@ const canvasToPrintData = (canvas) => {
 			let byte = 0;
 			for (let bit = 0; bit < 8; bit += 1) {
 				const pixelOffset = (width * y + startX + bit) * 4;
-				const bitValue = pixelIsWhite(imageData, pixelOffset) ? 1 : 0;
+				const bitValue = pixelIsWhite(imageData, pixelOffset) ? 0 : 1;
 				byte |= bitValue << (7 - bit);
 			}
 			output[offset++] = byte;
