@@ -262,97 +262,110 @@ const updateCanvasBarcode = (canvas) => {
 	});
 };
 
-const drawImageToCanvas = (ctx, url, options = {}) => {
-	const {
-		doScale = true,
-		availableWidth = ctx.canvas.height,
-		availableHeight = ctx.canvas.width,
-		offsetX = -ctx.canvas.height / 2,
-		offsetY = -ctx.canvas.width / 2,
-		binarize = false,
-	} = options;
-	const img = new Image();
-	img.addEventListener("load", () => {
-		ctx.fillStyle = "#fff";
-		ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height);
-
-		ctx.translate(ctx.canvas.width / 2, ctx.canvas.height / 2);
-		ctx.rotate(Math.PI / 2);
-
-		ctx.imageSmoothingEnabled = false;
-		const scale = doScale ? Math.min(availableWidth / img.width, availableHeight / img.height) : 1;
-		const drawWidth = Math.max(1, Math.round(img.width * scale));
-		const drawHeight = Math.max(1, Math.round(img.height * scale));
-		const drawX = offsetX + (availableWidth - drawWidth) / 2;
-		const drawY = offsetY + (availableHeight - drawHeight) / 2;
-
-		if (binarize) {
-			const offscreen = document.createElement("canvas");
-			offscreen.width = drawWidth;
-			offscreen.height = drawHeight;
-			const offCtx = offscreen.getContext("2d");
-			offCtx.drawImage(img, 0, 0, drawWidth, drawHeight);
-			const imageData = offCtx.getImageData(0, 0, drawWidth, drawHeight);
-			const data = imageData.data;
-			for (let i = 0; i < data.length; i += 4) {
-				const luminance = 0.299 * data[i] + 0.587 * data[i + 1] + 0.114 * data[i + 2];
-				const value = luminance < 128 ? 0 : 255;
-				data[i] = value;
-				data[i + 1] = value;
-				data[i + 2] = value;
-			}
-			offCtx.putImageData(imageData, 0, 0);
-			ctx.drawImage(offscreen, drawX, drawY, drawWidth, drawHeight);
-		} else {
-			ctx.drawImage(img, drawX, drawY, drawWidth, drawHeight);
-		}
-
-		ctx.rotate(-Math.PI / 2);
-		ctx.translate(-ctx.canvas.width / 2, -ctx.canvas.height / 2);
-	});
-
-	img.src = url;
+const drawBinarizedImage = (ctx, img, drawX, drawY, drawWidth, drawHeight) => {
+	const offscreen = document.createElement("canvas");
+	offscreen.width = drawWidth;
+	offscreen.height = drawHeight;
+	const offCtx = offscreen.getContext("2d");
+	offCtx.drawImage(img, 0, 0, drawWidth, drawHeight);
+	const imageData = offCtx.getImageData(0, 0, drawWidth, drawHeight);
+	const data = imageData.data;
+	for (let i = 0; i < data.length; i += 4) {
+		const luminance = 0.299 * data[i] + 0.587 * data[i + 1] + 0.114 * data[i + 2];
+		const value = luminance < 128 ? 0 : 255;
+		data[i] = value;
+		data[i + 1] = value;
+		data[i + 2] = value;
+	}
+	offCtx.putImageData(imageData, 0, 0);
+	ctx.drawImage(offscreen, drawX, drawY, drawWidth, drawHeight);
 };
 
 const updateCanvasImage = (canvas) => {
 	const ctx = canvas.getContext("2d");
 	const file = $("#imageInput").files[0];
+	const text = $("#imageTextInput").value;
+	const fontSize = $("#imageTextSize").valueAsNumber;
+	const font = $("#imageTextFont").value;
+	const fontStyle = $("#imageTextItalic").checked ? "italic" : "";
+	const fontWeight = $("#imageTextBold").checked ? "bold" : "";
+	const underline = $("#imageTextUnderline").checked;
 	if (!file) {
 		clearCanvas(canvas);
 		return;
 	}
 	const bounds = getLabelBounds(canvas);
+	const availableWidth = Math.max(0, bounds.right - bounds.left);
+	const availableHeight = Math.max(0, bounds.bottom - bounds.top);
+	const resolvedFontSize = isNaN(fontSize)
+		? Math.max(10, Math.min(48, Math.floor(availableHeight * 0.5)))
+		: Math.max(1, fontSize);
 
 	const reader = new FileReader();
 	reader.addEventListener("load", (event) => {
-		drawImageToCanvas(ctx, event.target.result, {
-			doScale: true,
-			availableWidth: Math.max(0, bounds.right - bounds.left),
-			availableHeight: Math.max(0, bounds.bottom - bounds.top),
-			offsetX: bounds.left,
-			offsetY: bounds.top,
-			binarize: true,
+		const image = new Image();
+		image.addEventListener("load", () => {
+			clearCanvas(canvas);
+			ctx.translate(canvas.width / 2, canvas.height / 2);
+			ctx.rotate(Math.PI / 2);
+
+			ctx.imageSmoothingEnabled = false;
+			if (!text.trim()) {
+				const scale = Math.min(
+					availableWidth / image.width,
+					availableHeight / image.height,
+					1
+				);
+				const drawWidth = Math.max(1, Math.round(image.width * scale));
+				const drawHeight = Math.max(1, Math.round(image.height * scale));
+				const drawX = bounds.left + (availableWidth - drawWidth) / 2;
+				const drawY = bounds.top + (availableHeight - drawHeight) / 2;
+				drawBinarizedImage(ctx, image, drawX, drawY, drawWidth, drawHeight);
+			} else {
+				const gap = 6;
+				const minTextWidth = 32;
+				const maxImageWidth = Math.max(16, availableWidth - gap - minTextWidth);
+
+				const scale = Math.min(
+					maxImageWidth / image.width,
+					availableHeight / image.height,
+					1
+				);
+				const drawWidth = Math.max(1, Math.round(image.width * scale));
+				const drawHeight = Math.max(1, Math.round(image.height * scale));
+				const drawX = bounds.left;
+				const drawY = bounds.top + (availableHeight - drawHeight) / 2;
+				drawBinarizedImage(ctx, image, drawX, drawY, drawWidth, drawHeight);
+
+				const textX = bounds.left + drawWidth + gap;
+				const textY = bounds.top;
+				const textHeight = availableHeight;
+				const textWidth = Math.max(0, availableWidth - drawWidth - gap);
+				if (textWidth > 0 && textHeight > 0) {
+					ctx.fillStyle = "#000";
+					renderTextBlock(ctx, text, {
+						x: textX,
+						y: textY,
+						width: textWidth,
+						height: textHeight,
+						font,
+						fontSize: resolvedFontSize,
+						fontStyle,
+						fontWeight,
+						underline,
+						align: "left",
+					});
+				}
+			}
+
+			ctx.rotate(-Math.PI / 2);
+			ctx.translate(-canvas.width / 2, -canvas.height / 2);
 		});
+
+		image.src = event.target.result;
 	});
 
 	reader.readAsDataURL(file);
-};
-
-const updateCanvasQR = async (canvas) => {
-	const data = $("#qrInput").value;
-	const ctx = canvas.getContext("2d");
-	const bounds = getLabelBounds(canvas);
-	const availableWidth = Math.max(0, bounds.right - bounds.left);
-	const availableHeight = Math.max(0, bounds.bottom - bounds.top);
-	const qrSize = Math.max(16, Math.floor(Math.min(availableWidth, availableHeight)));
-	const qrImg = await QRCode.toDataURL(data, { width: qrSize, margin: 2 });
-	drawImageToCanvas(ctx, qrImg, {
-		doScale: false,
-		availableWidth,
-		availableHeight,
-		offsetX: bounds.left,
-		offsetY: bounds.top,
-	});
 };
 
 const updateCanvasQRText = async (canvas) => {
@@ -437,7 +450,6 @@ const layoutHandlers = {
 	text: updateCanvasText,
 	barcode: updateCanvasBarcode,
 	image: updateCanvasImage,
-	qr: updateCanvasQR,
 	"qr-text": updateCanvasQRText,
 };
 
@@ -480,8 +492,9 @@ const initialize = () => {
 
 	$("#barcodeInput").addEventListener("input", () => refreshPreview("barcode", canvas));
 	$("#imageInput").addEventListener("change", () => refreshPreview("image", canvas));
-	$("#qrInput").addEventListener("input", () => refreshPreview("qr", canvas));
-
+	$$("#imageTextInput, #imageTextSize, #imageTextFont, #imageTextBold, #imageTextItalic, #imageTextUnderline").forEach(
+		(input) => input.addEventListener("input", () => refreshPreview("image", canvas))
+	);
 	$$("#qrTextData, #qrTextInput, #qrTextSize, #qrTextFont, #qrTextAlign, #qrTextBold, #qrTextItalic, #qrTextUnderline").forEach(
 		(input) => input.addEventListener("input", () => refreshPreview("qr-text", canvas))
 	);

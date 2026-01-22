@@ -25,8 +25,7 @@
 					<select id="layoutSelect" class="field-input">
 						<option value="text" selected>Text</option>
 						<option value="barcode">Barcode</option>
-						<option value="image">Image</option>
-						<option value="qr">QR Code</option>
+						<option value="image">Image + Text</option>
 						<option value="qr-text">QR Code + Text</option>
 					</select>
 				</div>
@@ -74,15 +73,35 @@
 				</div>
 
 				<div class="card layout-fields" data-layout="image" hidden>
-					<h3>Image settings</h3>
+					<h3>Image + Text settings</h3>
 					<label for="imageInput" class="field-label">Image file</label>
 					<input id="imageInput" class="field-input" type="file" accept="image/*" />
-				</div>
-
-				<div class="card layout-fields" data-layout="qr" hidden>
-					<h3>QR Code settings</h3>
-					<label for="qrInput" class="field-label">QR code data</label>
-					<input id="qrInput" class="field-input" type="text" value="https://example.com" />
+					<label for="imageTextInput" class="field-label">Text (optional)</label>
+					<textarea id="imageTextInput" class="field-input" rows="2"></textarea>
+					<label for="imageTextFont" class="field-label">Font</label>
+					<select id="imageTextFont" class="field-input">
+						<option value="'Noto Sans JP', sans-serif">Noto Sans JP</option>
+						<option value="'Montserrat', sans-serif">Montserrat</option>
+						<option value="'Merriweather', serif">Merriweather</option>
+						<option value="'Roboto Mono', monospace">Roboto Mono</option>
+						<option value="sans-serif">System Sans</option>
+					</select>
+					<label for="imageTextSize" class="field-label">Font size (px)</label>
+					<input id="imageTextSize" class="field-input" type="number" value="24" min="1" />
+					<div class="toggle-row">
+						<label class="toggle">
+							<input type="checkbox" id="imageTextBold" checked />
+							<span>Bold</span>
+						</label>
+						<label class="toggle">
+							<input type="checkbox" id="imageTextItalic" />
+							<span>Italic</span>
+						</label>
+						<label class="toggle">
+							<input type="checkbox" id="imageTextUnderline" />
+							<span>Underline</span>
+						</label>
+					</div>
 				</div>
 
 				<div class="card layout-fields" data-layout="qr-text" hidden>
