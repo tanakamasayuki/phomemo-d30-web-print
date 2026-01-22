@@ -194,27 +194,6 @@
 						</div>
 					</div>
 				</div>
-				<div class="card">
-					<h2>Label size</h2>
-					<div class="field-row">
-						<div>
-							<label for="labelWidth" class="field-label">Width (mm)</label>
-							<input id="labelWidth" class="field-input" type="number" value="40" min="1" />
-						</div>
-						<div>
-							<label for="labelHeight" class="field-label">Height (mm)</label>
-							<input id="labelHeight" class="field-input" type="number" value="12" min="1" />
-						</div>
-						<div>
-							<label for="labelMarginX" class="field-label">Margin X (mm)</label>
-							<input id="labelMarginX" class="field-input" type="number" value="2" min="0" />
-						</div>
-						<div>
-							<label for="labelMarginY" class="field-label">Margin Y (mm)</label>
-							<input id="labelMarginY" class="field-input" type="number" value="0" min="0" />
-						</div>
-					</div>
-				</div>
 				<div class="card print-card">
 					<h2>Print</h2>
 					<p class="helper">Connect to the printer and send the current preview.</p>
@@ -224,6 +203,28 @@
 						Connect &amp; print
 					</button>
 					<p class="status" id="printStatus" aria-live="polite"></p>
+				</div>
+				<div class="card">
+					<h2>Label size</h2>
+					<div class="field-row">
+						<div>
+							<label for="labelHeight" class="field-label">Height (mm)</label>
+							<input id="labelHeight" class="field-input" type="number" value="12" min="1" />
+						</div>
+						<div>
+							<label for="labelWidth" class="field-label">Width (mm)</label>
+							<input id="labelWidth" class="field-input" type="number" value="40" min="1" />
+						</div>
+						<br>
+						<div>
+							<label for="labelMarginY" class="field-label">Margin Y (mm)</label>
+							<input id="labelMarginY" class="field-input" type="number" value="0" min="0" />
+						</div>
+						<div>
+							<label for="labelMarginX" class="field-label">Margin X (mm)</label>
+							<input id="labelMarginX" class="field-input" type="number" value="2" min="0" />
+						</div>
+					</div>
 				</div>
 			</section>
 		</main>
