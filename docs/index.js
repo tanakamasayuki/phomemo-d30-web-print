@@ -70,6 +70,8 @@ const printCanvas = async (characteristic, canvas) => {
 const $ = (selector) => document.querySelector(selector);
 const $$ = (selector) => document.querySelectorAll(selector);
 
+const STORAGE_KEY = "phomemo-d30-web-print-state";
+
 const setBarcodeError = (message) => {
 	const error = $("#barcodeError");
 	if (error) {
@@ -129,6 +131,39 @@ const validateBarcodeValue = (format, value) => {
 		}
 		default:
 			return "";
+	}
+};
+
+const saveFormState = () => {
+	const state = {};
+	$$("input, select, textarea").forEach((element) => {
+		if (!element.id) return;
+		if (element.type === "file") return;
+		if (element.type === "checkbox") {
+			state[element.id] = element.checked;
+		} else {
+			state[element.id] = element.value;
+		}
+	});
+	localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+};
+
+const restoreFormState = () => {
+	const saved = localStorage.getItem(STORAGE_KEY);
+	if (!saved) return;
+	try {
+		const state = JSON.parse(saved);
+		$$("input, select, textarea").forEach((element) => {
+			if (!element.id || !(element.id in state)) return;
+			if (element.type === "file") return;
+			if (element.type === "checkbox") {
+				element.checked = Boolean(state[element.id]);
+			} else {
+				element.value = state[element.id];
+			}
+		});
+	} catch (error) {
+		console.error(error);
 	}
 };
 
@@ -665,17 +700,20 @@ const initialize = () => {
 	const printCopies = $("#printCopies");
 	let printerDevice = null;
 	let printerCharacteristic = null;
+	restoreFormState();
 	updateLabelSize(canvas);
 	setActiveLayout($("#layoutSelect").value, canvas);
 
 	$("#layoutSelect").addEventListener("change", (event) => {
 		setActiveLayout(event.target.value, canvas);
+		saveFormState();
 	});
 
 	$$("#labelWidth, #labelHeight, #labelMarginX, #labelMarginY").forEach((input) =>
 		input.addEventListener("input", () => {
 			updateLabelSize(canvas);
 			refreshPreview($("#layoutSelect").value, canvas);
+			saveFormState();
 		})
 	);
 	$("#labelPreset").addEventListener("change", (event) => {
@@ -686,24 +724,47 @@ const initialize = () => {
 			updateLabelSize(canvas);
 			refreshPreview($("#layoutSelect").value, canvas);
 		}
+		saveFormState();
 	});
 
 	$$("#textInput, #textSize, #textFont, #textAlign, #textBold, #textItalic, #textUnderline").forEach(
-		(input) => input.addEventListener("input", () => refreshPreview("text", canvas))
+		(input) =>
+			input.addEventListener("input", () => {
+				refreshPreview("text", canvas);
+				saveFormState();
+			})
 	);
 
 	$$("#barcodeInput, #barcodeFormat, #barcodeShowValue").forEach((input) =>
-		input.addEventListener("input", () => refreshPreview("barcode", canvas))
+		input.addEventListener("input", () => {
+			refreshPreview("barcode", canvas);
+			saveFormState();
+		})
 	);
 	$$("#barcodeTextInput, #barcodeTextSize, #barcodeTextFont, #barcodeTextBold, #barcodeTextItalic, #barcodeTextUnderline").forEach(
-		(input) => input.addEventListener("input", () => refreshPreview("barcode", canvas))
+		(input) =>
+			input.addEventListener("input", () => {
+				refreshPreview("barcode", canvas);
+				saveFormState();
+			})
 	);
-	$("#imageInput").addEventListener("change", () => refreshPreview("image", canvas));
+	$("#imageInput").addEventListener("change", () => {
+		refreshPreview("image", canvas);
+		saveFormState();
+	});
 	$$("#imageTextInput, #imageTextSize, #imageTextFont, #imageTextBold, #imageTextItalic, #imageTextUnderline").forEach(
-		(input) => input.addEventListener("input", () => refreshPreview("image", canvas))
+		(input) =>
+			input.addEventListener("input", () => {
+				refreshPreview("image", canvas);
+				saveFormState();
+			})
 	);
 	$$("#qrTextData, #qrTextInput, #qrTextSize, #qrTextFont, #qrTextAlign, #qrTextBold, #qrTextItalic, #qrTextUnderline").forEach(
-		(input) => input.addEventListener("input", () => refreshPreview("qr-text", canvas))
+		(input) =>
+			input.addEventListener("input", () => {
+				refreshPreview("qr-text", canvas);
+				saveFormState();
+			})
 	);
 
 	const getPrinterCharacteristic = () => {
