@@ -148,6 +148,28 @@ const saveFormState = () => {
 	localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
 };
 
+const resetFormState = () => {
+	localStorage.removeItem(STORAGE_KEY);
+	$$("input, select, textarea").forEach((element) => {
+		if (!element.id) return;
+		if (element.type === "file") {
+			element.value = "";
+			return;
+		}
+		if (element.type === "checkbox" || element.type === "radio") {
+			element.checked = element.defaultChecked;
+			return;
+		}
+		if (element.tagName === "SELECT") {
+			const defaultOption = element.querySelector("option[selected]") || element.options[0];
+			element.value = defaultOption ? defaultOption.value : "";
+			return;
+		}
+		element.value = element.defaultValue;
+	});
+	setBarcodeError("");
+};
+
 const restoreFormState = () => {
 	const saved = localStorage.getItem(STORAGE_KEY);
 	if (!saved) return;
@@ -766,6 +788,11 @@ const initialize = () => {
 				saveFormState();
 			})
 	);
+	$("#resetButton").addEventListener("click", () => {
+		resetFormState();
+		updateLabelSize(canvas);
+		setActiveLayout($("#layoutSelect").value, canvas);
+	});
 
 	const getPrinterCharacteristic = () => {
 		if (printerDevice?.gatt?.connected && printerCharacteristic) {

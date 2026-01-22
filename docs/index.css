@@ -194,6 +194,22 @@ h3 {
 	box-shadow: none;
 }
 
+.secondary-button {
+	border: 1px solid #d9cfc2;
+	border-radius: 999px;
+	padding: 10px 18px;
+	font-size: 13px;
+	font-weight: 600;
+	background: #fff7ee;
+	color: #3b3328;
+	cursor: pointer;
+	margin-top: 12px;
+}
+
+.secondary-button:hover {
+	background: #f5eadf;
+}
+
 .status {
 	margin: 12px 0 0;
 	font-size: 12px;
