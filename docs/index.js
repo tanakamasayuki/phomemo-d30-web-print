@@ -674,6 +674,9 @@ const renderHistoryList = () => {
 		const meta = document.createElement("div");
 		meta.className = "history-meta";
 
+		const info = document.createElement("div");
+		info.className = "history-info";
+
 		const title = document.createElement("strong");
 		title.textContent = `${entry.label.height} x ${entry.label.width} mm`;
 
@@ -728,7 +731,8 @@ const renderHistoryList = () => {
 		});
 
 		buttons.append(loadButton, exportButton, deleteButton);
-		meta.append(title, timestamp, buttons);
+		info.append(title, timestamp);
+		meta.append(info, buttons);
 		item.append(thumbWrap, meta);
 		list.append(item);
 	});

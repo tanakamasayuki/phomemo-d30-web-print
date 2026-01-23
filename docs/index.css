@@ -289,7 +289,6 @@ h3 {
 }
 
 .history-thumb {
-	width: 100%;
 	height: auto;
 	display: block;
 	object-fit: contain;
@@ -297,10 +296,8 @@ h3 {
 }
 
 .history-thumb-wrap {
-	width: 100%;
-	max-width: 260px;
 	border-radius: 12px;
-	background: #fff;
+	background: #f6f0e8;
 	border: 1px solid #e6ddd3;
 	overflow: hidden;
 	display: flex;
@@ -309,6 +306,13 @@ h3 {
 }
 
 .history-meta {
+	display: grid;
+	grid-template-columns: 1fr auto;
+	gap: 8px 12px;
+	align-items: center;
+}
+
+.history-info {
 	display: flex;
 	flex-direction: column;
 	gap: 6px;
@@ -322,6 +326,8 @@ h3 {
 	display: flex;
 	flex-wrap: wrap;
 	gap: 8px;
+	justify-content: flex-end;
+	align-items: center;
 }
 
 .history-buttons .secondary-button {
