@@ -293,6 +293,7 @@ h3 {
 	height: auto;
 	display: block;
 	object-fit: contain;
+	border-radius: inherit;
 }
 
 .history-thumb-wrap {
@@ -301,6 +302,7 @@ h3 {
 	border-radius: 12px;
 	background: #fff;
 	border: 1px solid #e6ddd3;
+	overflow: hidden;
 	display: flex;
 	justify-content: center;
 	align-items: center;
