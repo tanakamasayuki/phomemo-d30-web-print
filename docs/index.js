@@ -698,6 +698,7 @@ const renderHistoryList = () => {
 		loadButton.className = "secondary-button";
 		loadButton.textContent = t("history.load");
 		loadButton.addEventListener("click", () => {
+			resetFormState();
 			applyFormState(entry.formState);
 			clearPreviewOverride();
 			currentImageDataUrl = entry.imageDataUrl || "";
