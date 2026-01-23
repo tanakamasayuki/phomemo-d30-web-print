@@ -1089,6 +1089,7 @@ const updateCanvasBarcode = (canvas) => {
 	const format = $("#barcodeFormat").value;
 	const showValue = $("#barcodeShowValue").checked;
 	const text = $("#barcodeTextInput").value;
+	const textAlign = $("#barcodeTextAlign").value;
 	const fontSize = $("#barcodeTextSize").valueAsNumber;
 	const font = $("#barcodeTextFont").value;
 	const fontStyle = $("#barcodeTextItalic").checked ? "italic" : "";
@@ -1180,7 +1181,7 @@ const updateCanvasBarcode = (canvas) => {
 						fontStyle,
 						fontWeight,
 						underline,
-						align: "left",
+						align: textAlign,
 					});
 				}
 			}
@@ -1233,6 +1234,7 @@ const updateCanvasImage = (canvas) => {
 	const ctx = canvas.getContext("2d");
 	const file = $("#imageInput").files[0];
 	const text = $("#imageTextInput").value;
+	const textAlign = $("#imageTextAlign").value;
 	const fontSize = $("#imageTextSize").valueAsNumber;
 	const font = $("#imageTextFont").value;
 	const fontStyle = $("#imageTextItalic").checked ? "italic" : "";
@@ -1289,20 +1291,20 @@ const updateCanvasImage = (canvas) => {
 			const textWidth = Math.max(0, availableWidth - drawWidth - gap);
 			if (textWidth > 0 && textHeight > 0) {
 				ctx.fillStyle = "#000";
-				renderTextBlock(ctx, text, {
-					x: textX,
-					y: textY,
-					width: textWidth,
-					height: textHeight,
-					font,
-					fontSize: resolvedFontSize,
-					fontStyle,
-					fontWeight,
-					underline,
-					align: "left",
-				});
+					renderTextBlock(ctx, text, {
+						x: textX,
+						y: textY,
+						width: textWidth,
+						height: textHeight,
+						font,
+						fontSize: resolvedFontSize,
+						fontStyle,
+						fontWeight,
+						underline,
+						align: textAlign,
+					});
+				}
 			}
-		}
 
 		ctx.rotate(-Math.PI / 2);
 		ctx.translate(-canvas.width / 2, -canvas.height / 2);
@@ -1533,7 +1535,7 @@ const initialize = () => {
 			saveFormState();
 		})
 	);
-	$$("#barcodeTextInput, #barcodeTextSize, #barcodeTextFont, #barcodeTextBold, #barcodeTextItalic, #barcodeTextUnderline").forEach(
+	$$("#barcodeTextInput, #barcodeTextAlign, #barcodeTextSize, #barcodeTextFont, #barcodeTextBold, #barcodeTextItalic, #barcodeTextUnderline").forEach(
 		(input) =>
 			input.addEventListener("input", () => {
 				clearPreviewOverride();
@@ -1549,7 +1551,7 @@ const initialize = () => {
 		refreshPreview("image", canvas);
 		saveFormState();
 	});
-	$$("#imageTextInput, #imageTextSize, #imageTextFont, #imageTextBold, #imageTextItalic, #imageTextUnderline").forEach(
+	$$("#imageTextInput, #imageTextAlign, #imageTextSize, #imageTextFont, #imageTextBold, #imageTextItalic, #imageTextUnderline").forEach(
 		(input) =>
 			input.addEventListener("input", () => {
 				clearPreviewOverride();
