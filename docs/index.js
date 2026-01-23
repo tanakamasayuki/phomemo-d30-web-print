@@ -79,6 +79,7 @@ const I18N = {
 	en: {
 		"app.title": "Phomemo D30 Label Designer",
 		"hero.title": "D30 Label Designer",
+		"hero.subtitle": "Uses Web Bluetooth. Recommended browsers: Chrome, Edge.",
 		"language.title": "Language",
 		"language.auto": "Auto (Browser)",
 		"language.english": "English",
@@ -163,6 +164,7 @@ const I18N = {
 	ja: {
 		"app.title": "Phomemo D30用ラベルデザイン",
 		"hero.title": "D30用ラベルデザイン",
+		"hero.subtitle": "Web Bluetoothを使用します。推奨ブラウザ: Chrome / Edge。",
 		"language.title": "言語",
 		"language.auto": "自動（ブラウザ）",
 		"language.english": "英語",
@@ -246,6 +248,7 @@ const I18N = {
 	zh: {
 		"app.title": "Phomemo D30 标签设计",
 		"hero.title": "D30 标签设计",
+		"hero.subtitle": "使用 Web Bluetooth。推荐浏览器：Chrome、Edge。",
 		"language.title": "语言",
 		"language.auto": "自动（浏览器）",
 		"language.english": "英语",
@@ -329,6 +332,7 @@ const I18N = {
 	fr: {
 		"app.title": "Concepteur d'etiquettes Phomemo D30",
 		"hero.title": "Concepteur d'etiquettes D30",
+		"hero.subtitle": "Utilise Web Bluetooth. Navigateurs recommandes : Chrome, Edge.",
 		"language.title": "Langue",
 		"language.auto": "Auto (navigateur)",
 		"language.english": "Anglais",
@@ -412,6 +416,7 @@ const I18N = {
 	es: {
 		"app.title": "Disenador de etiquetas Phomemo D30",
 		"hero.title": "Disenador de etiquetas D30",
+		"hero.subtitle": "Usa Web Bluetooth. Navegadores recomendados: Chrome, Edge.",
 		"language.title": "Idioma",
 		"language.auto": "Auto (navegador)",
 		"language.english": "Inglés",
@@ -495,6 +500,7 @@ const I18N = {
 	de: {
 		"app.title": "Phomemo D30 Etiketten-Designer",
 		"hero.title": "D30 Etiketten-Designer",
+		"hero.subtitle": "Nutzt Web Bluetooth. Empfohlene Browser: Chrome, Edge.",
 		"language.title": "Sprache",
 		"language.auto": "Auto (Browser)",
 		"language.english": "Englisch",
