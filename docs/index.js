@@ -1578,6 +1578,9 @@ const initialize = () => {
 				saveFormState();
 			})
 	);
+	printCopies.addEventListener("input", () => {
+		saveFormState();
+	});
 	$("#resetButton").addEventListener("click", () => {
 		clearPreviewOverride();
 		resetFormState();
