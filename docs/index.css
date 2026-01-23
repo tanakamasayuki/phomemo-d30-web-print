@@ -236,6 +236,10 @@ h3 {
 	margin-top: 12px;
 }
 
+.print-card .secondary-button {
+	margin-top: 10px;
+}
+
 .secondary-button:hover {
 	background: #f5eadf;
 }

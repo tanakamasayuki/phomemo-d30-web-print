@@ -112,6 +112,7 @@ const I18N = {
 		"print.helper": "Connect to the printer and send the current preview.",
 		"print.copies": "Copies",
 		"print.connect": "Connect & print",
+		"print.disconnect": "Disconnect",
 		"label.title": "Label size",
 		"label.preset": "Preset (Height x Width)",
 		"label.choosePreset": "Choose a preset",
@@ -186,6 +187,7 @@ const I18N = {
 		"print.helper": "プリンターに接続して現在のプレビューを送信します。",
 		"print.copies": "部数",
 		"print.connect": "接続して印刷",
+		"print.disconnect": "切断",
 		"label.title": "ラベルサイズ",
 		"label.preset": "プリセット（縦×横）",
 		"label.choosePreset": "プリセットを選択",
@@ -259,6 +261,7 @@ const I18N = {
 		"print.helper": "连接打印机并发送当前预览。",
 		"print.copies": "份数",
 		"print.connect": "连接并打印",
+		"print.disconnect": "断开连接",
 		"label.title": "标签尺寸",
 		"label.preset": "预设（高 × 宽）",
 		"label.choosePreset": "选择预设",
@@ -332,6 +335,7 @@ const I18N = {
 		"print.helper": "Connectez l'imprimante et envoyez l'aperçu actuel.",
 		"print.copies": "Copies",
 		"print.connect": "Connecter et imprimer",
+		"print.disconnect": "Déconnecter",
 		"label.title": "Format d'étiquette",
 		"label.preset": "Préréglage (hauteur × largeur)",
 		"label.choosePreset": "Choisir un préréglage",
@@ -405,6 +409,7 @@ const I18N = {
 		"print.helper": "Conecta la impresora y envía la vista previa actual.",
 		"print.copies": "Copias",
 		"print.connect": "Conectar e imprimir",
+		"print.disconnect": "Desconectar",
 		"label.title": "Tamaño de etiqueta",
 		"label.preset": "Preajuste (alto × ancho)",
 		"label.choosePreset": "Elegir preajuste",
@@ -478,6 +483,7 @@ const I18N = {
 		"print.helper": "Drucker verbinden und die aktuelle Vorschau senden.",
 		"print.copies": "Kopien",
 		"print.connect": "Verbinden und drucken",
+		"print.disconnect": "Trennen",
 		"label.title": "Etikettengröße",
 		"label.preset": "Voreinstellung (Höhe × Breite)",
 		"label.choosePreset": "Voreinstellung wählen",
@@ -1195,6 +1201,7 @@ const refreshPreview = (layout, canvas) => {
 const initialize = () => {
 	const canvas = $("#previewCanvas");
 	const printButton = $("#printButton");
+	const disconnectButton = $("#disconnectButton");
 	const printStatus = $("#printStatus");
 	const printCopies = $("#printCopies");
 	let printerDevice = null;
@@ -1278,6 +1285,24 @@ const initialize = () => {
 		setActiveLayout($("#layoutSelect").value, canvas);
 	});
 
+	const updateConnectionUI = (connected) => {
+		disconnectButton.hidden = !connected;
+	};
+
+	const disconnectPrinter = () => {
+		if (printerDevice?.gatt?.connected) {
+			printerDevice.gatt.disconnect();
+		}
+		printerCharacteristic = null;
+		printButton.textContent = t("print.button.connect");
+		printStatus.textContent = t("print.status.disconnected");
+		updateConnectionUI(false);
+	};
+
+	disconnectButton.addEventListener("click", () => {
+		disconnectPrinter();
+	});
+
 	const getPrinterCharacteristic = () => {
 		if (printerDevice?.gatt?.connected && printerCharacteristic) {
 			return Promise.resolve(printerCharacteristic);
@@ -1292,6 +1317,7 @@ const initialize = () => {
 						printerCharacteristic = characteristic;
 						printButton.textContent = t("print.button.print");
 						printStatus.textContent = t("print.status.connected");
+						updateConnectionUI(true);
 						return characteristic;
 					});
 		};
@@ -1310,6 +1336,7 @@ const initialize = () => {
 				device.addEventListener("gattserverdisconnected", () => {
 					printButton.textContent = t("print.button.connect");
 					printStatus.textContent = t("print.status.disconnected");
+					updateConnectionUI(false);
 				});
 				return connectDevice();
 			});
