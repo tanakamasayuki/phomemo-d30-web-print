@@ -240,6 +240,92 @@ h3 {
 	margin-top: 10px;
 }
 
+.button-row {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 8px;
+	margin-top: 12px;
+}
+
+.button-row .secondary-button {
+	margin-top: 0;
+}
+
+.history-card {
+	gap: 12px;
+}
+
+.history-header {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	justify-content: space-between;
+	gap: 12px;
+}
+
+.history-actions {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 8px;
+}
+
+.history-actions .secondary-button {
+	margin-top: 0;
+}
+
+.history-list {
+	display: grid;
+	gap: 12px;
+}
+
+.history-item {
+	display: grid;
+	grid-template-columns: 1fr;
+	gap: 12px;
+	padding: 12px;
+	border-radius: 16px;
+	background: #fbf7f1;
+	border: 1px solid #e8dfd4;
+}
+
+.history-thumb {
+	width: 100%;
+	height: auto;
+	display: block;
+	object-fit: contain;
+}
+
+.history-thumb-wrap {
+	width: 100%;
+	max-width: 260px;
+	border-radius: 12px;
+	background: #fff;
+	border: 1px solid #e6ddd3;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+}
+
+.history-meta {
+	display: flex;
+	flex-direction: column;
+	gap: 6px;
+}
+
+.history-meta .status {
+	margin: 0;
+}
+
+.history-buttons {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 8px;
+}
+
+.history-buttons .secondary-button {
+	margin-top: 0;
+}
+
 .secondary-button:hover {
 	background: #f5eadf;
 }

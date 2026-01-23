@@ -71,7 +71,9 @@ const $ = (selector) => document.querySelector(selector);
 const $$ = (selector) => document.querySelectorAll(selector);
 
 const STORAGE_KEY = "phomemo-d30-web-print-state";
+const HISTORY_KEY = "phomemo-d30-web-print-history";
 let currentLanguage = "en";
+let currentImageDataUrl = "";
 
 const I18N = {
 	en: {
@@ -113,6 +115,15 @@ const I18N = {
 		"print.copies": "Copies",
 		"print.connect": "Connect & print",
 		"print.disconnect": "Disconnect",
+		"history.title": "Print history",
+		"history.open": "History",
+		"history.empty": "No history yet.",
+		"history.load": "Load",
+		"history.export": "Export JSON",
+		"history.delete": "Delete",
+		"history.save": "Save preview",
+		"history.import": "Import JSON",
+		"history.clearAll": "Clear all",
 		"label.title": "Label size",
 		"label.preset": "Preset (Height x Width)",
 		"label.choosePreset": "Choose a preset",
@@ -188,6 +199,15 @@ const I18N = {
 		"print.copies": "部数",
 		"print.connect": "接続して印刷",
 		"print.disconnect": "切断",
+		"history.title": "印刷履歴",
+		"history.open": "履歴",
+		"history.empty": "履歴はまだありません。",
+		"history.load": "読み込み",
+		"history.export": "JSON出力",
+		"history.delete": "削除",
+		"history.save": "プレビュー保存",
+		"history.import": "JSON読み込み",
+		"history.clearAll": "全履歴削除",
 		"label.title": "ラベルサイズ",
 		"label.preset": "プリセット（縦×横）",
 		"label.choosePreset": "プリセットを選択",
@@ -262,6 +282,15 @@ const I18N = {
 		"print.copies": "份数",
 		"print.connect": "连接并打印",
 		"print.disconnect": "断开连接",
+		"history.title": "打印记录",
+		"history.open": "记录",
+		"history.empty": "暂无记录。",
+		"history.load": "加载",
+		"history.export": "导出JSON",
+		"history.delete": "删除",
+		"history.save": "保存预览",
+		"history.import": "导入JSON",
+		"history.clearAll": "清空记录",
 		"label.title": "标签尺寸",
 		"label.preset": "预设（高 × 宽）",
 		"label.choosePreset": "选择预设",
@@ -336,6 +365,15 @@ const I18N = {
 		"print.copies": "Copies",
 		"print.connect": "Connecter et imprimer",
 		"print.disconnect": "Déconnecter",
+		"history.title": "Historique d'impression",
+		"history.open": "Historique",
+		"history.empty": "Aucun historique.",
+		"history.load": "Charger",
+		"history.export": "Exporter JSON",
+		"history.delete": "Supprimer",
+		"history.save": "Enregistrer l'aperçu",
+		"history.import": "Importer JSON",
+		"history.clearAll": "Tout effacer",
 		"label.title": "Format d'étiquette",
 		"label.preset": "Préréglage (hauteur × largeur)",
 		"label.choosePreset": "Choisir un préréglage",
@@ -410,6 +448,15 @@ const I18N = {
 		"print.copies": "Copias",
 		"print.connect": "Conectar e imprimir",
 		"print.disconnect": "Desconectar",
+		"history.title": "Historial de impresión",
+		"history.open": "Historial",
+		"history.empty": "Sin historial.",
+		"history.load": "Cargar",
+		"history.export": "Exportar JSON",
+		"history.delete": "Eliminar",
+		"history.save": "Guardar vista previa",
+		"history.import": "Importar JSON",
+		"history.clearAll": "Borrar todo",
 		"label.title": "Tamaño de etiqueta",
 		"label.preset": "Preajuste (alto × ancho)",
 		"label.choosePreset": "Elegir preajuste",
@@ -484,6 +531,15 @@ const I18N = {
 		"print.copies": "Kopien",
 		"print.connect": "Verbinden und drucken",
 		"print.disconnect": "Trennen",
+		"history.title": "Druckverlauf",
+		"history.open": "Verlauf",
+		"history.empty": "Kein Verlauf vorhanden.",
+		"history.load": "Laden",
+		"history.export": "JSON exportieren",
+		"history.delete": "Löschen",
+		"history.save": "Vorschau speichern",
+		"history.import": "JSON importieren",
+		"history.clearAll": "Alle löschen",
 		"label.title": "Etikettengröße",
 		"label.preset": "Voreinstellung (Höhe × Breite)",
 		"label.choosePreset": "Voreinstellung wählen",
@@ -552,6 +608,171 @@ const applyTranslations = (language) => {
 		element.textContent = t(element.dataset.i18n);
 	});
 	document.title = t("app.title");
+};
+
+const collectFormState = () => {
+	const state = {};
+	$$("input, select, textarea").forEach((element) => {
+		if (!element.id) return;
+		if (element.type === "file") return;
+		if (element.type === "checkbox") {
+			state[element.id] = element.checked;
+		} else {
+			state[element.id] = element.value;
+		}
+	});
+	return state;
+};
+
+const applyFormState = (state) => {
+	$$("input, select, textarea").forEach((element) => {
+		if (!element.id || !(element.id in state)) return;
+		if (element.type === "file") return;
+		if (element.type === "checkbox") {
+			element.checked = Boolean(state[element.id]);
+		} else {
+			element.value = state[element.id];
+		}
+	});
+};
+
+const getHistory = () => {
+	const raw = localStorage.getItem(HISTORY_KEY);
+	if (!raw) return [];
+	try {
+		const parsed = JSON.parse(raw);
+		return Array.isArray(parsed) ? parsed : [];
+	} catch (error) {
+		console.error(error);
+		return [];
+	}
+};
+
+const saveHistory = (entries) => {
+	localStorage.setItem(HISTORY_KEY, JSON.stringify(entries));
+};
+
+const renderHistoryList = () => {
+	const list = $("#historyList");
+	const empty = $("#historyEmpty");
+	if (!list || !empty) return;
+	const entries = getHistory();
+	list.innerHTML = "";
+	empty.hidden = entries.length > 0;
+	entries.forEach((entry) => {
+		const item = document.createElement("div");
+		item.className = "history-item";
+
+		const thumbWrap = document.createElement("div");
+		thumbWrap.className = "history-thumb-wrap";
+		const thumb = document.createElement("img");
+		thumb.className = "history-thumb";
+		thumb.alt = "Preview";
+		thumb.src = entry.previewDataUrl;
+		thumbWrap.append(thumb);
+
+		const meta = document.createElement("div");
+		meta.className = "history-meta";
+
+		const title = document.createElement("strong");
+		title.textContent = `${entry.label.height} x ${entry.label.width} mm`;
+
+		const timestamp = document.createElement("p");
+		timestamp.className = "status";
+		timestamp.textContent = new Date(entry.timestamp).toLocaleString(currentLanguage);
+
+		const buttons = document.createElement("div");
+		buttons.className = "history-buttons";
+
+		const loadButton = document.createElement("button");
+		loadButton.type = "button";
+		loadButton.className = "secondary-button";
+		loadButton.textContent = t("history.load");
+		loadButton.addEventListener("click", () => {
+			applyFormState(entry.formState);
+			clearPreviewOverride();
+			currentImageDataUrl = entry.imageDataUrl || "";
+			applyTranslations();
+			renderHistoryList();
+			updateLabelSize($("#previewCanvas"));
+			setActiveLayout($("#layoutSelect").value, $("#previewCanvas"));
+			saveFormState();
+		});
+
+		const exportButton = document.createElement("button");
+		exportButton.type = "button";
+		exportButton.className = "secondary-button";
+		exportButton.textContent = t("history.export");
+		exportButton.addEventListener("click", () => {
+			const blob = new Blob([JSON.stringify(entry, null, 2)], {
+				type: "application/json",
+			});
+			const url = URL.createObjectURL(blob);
+			const link = document.createElement("a");
+			link.href = url;
+			link.download = `phomemo-print-history-${entry.id}.json`;
+			document.body.appendChild(link);
+			link.click();
+			link.remove();
+			URL.revokeObjectURL(url);
+		});
+
+		const deleteButton = document.createElement("button");
+		deleteButton.type = "button";
+		deleteButton.className = "secondary-button";
+		deleteButton.textContent = t("history.delete");
+		deleteButton.addEventListener("click", () => {
+			const nextEntries = getHistory().filter((itemEntry) => itemEntry.id !== entry.id);
+			saveHistory(nextEntries);
+			renderHistoryList();
+		});
+
+		buttons.append(loadButton, exportButton, deleteButton);
+		meta.append(title, timestamp, buttons);
+		item.append(thumbWrap, meta);
+		list.append(item);
+	});
+};
+
+const addHistoryEntry = (canvas) => {
+	const layout = $("#layoutSelect").value;
+	const entry = {
+		id: `${Date.now()}-${Math.random().toString(16).slice(2)}`,
+		timestamp: Date.now(),
+		layout,
+		label: {
+			width: labelSize.width,
+			height: labelSize.height,
+			marginX: labelMargin.x,
+			marginY: labelMargin.y,
+		},
+		formState: collectFormState(),
+		previewDataUrl: binarizeCanvasToDataUrl(canvas),
+		imageDataUrl: currentImageDataUrl || "",
+	};
+	const entries = getHistory();
+	entries.unshift(entry);
+	saveHistory(entries.slice(0, 50));
+	renderHistoryList();
+};
+
+const normalizeHistoryEntry = (entry) => {
+	if (!entry || typeof entry !== "object") return null;
+	if (!entry.previewDataUrl || !entry.label) return null;
+	return {
+		id: entry.id || `${Date.now()}-${Math.random().toString(16).slice(2)}`,
+		timestamp: entry.timestamp || Date.now(),
+		layout: entry.layout || "text",
+		label: {
+			width: entry.label.width ?? labelSize.width,
+			height: entry.label.height ?? labelSize.height,
+			marginX: entry.label.marginX ?? labelMargin.x,
+			marginY: entry.label.marginY ?? labelMargin.y,
+		},
+		formState: entry.formState || {},
+		previewDataUrl: entry.previewDataUrl,
+		imageDataUrl: entry.imageDataUrl || "",
+	};
 };
 
 const setBarcodeError = (message) => {
@@ -632,6 +853,7 @@ const saveFormState = () => {
 
 const resetFormState = () => {
 	localStorage.removeItem(STORAGE_KEY);
+	currentImageDataUrl = "";
 	$$("input, select, textarea").forEach((element) => {
 		if (!element.id) return;
 		if (element.type === "file") {
@@ -676,6 +898,8 @@ const labelMargin = { x: 2, y: 0 };
 
 const getEffectiveLabelHeight = () => (labelSize.height === 6 ? 12 : labelSize.height);
 
+const clearPreviewOverride = () => {};
+
 const updatePreviewFrame = (canvas) => {
 	const frame = $(".preview-frame");
 	if (!frame) return;
@@ -708,6 +932,30 @@ const createLayoutCanvas = () => {
 	tempCanvas.width = labelSize.height * 8;
 	tempCanvas.height = labelSize.width * 8;
 	return tempCanvas;
+};
+
+const binarizeCanvasToDataUrl = (canvas) => {
+	const rotatedCanvas = document.createElement("canvas");
+	rotatedCanvas.width = canvas.height;
+	rotatedCanvas.height = canvas.width;
+	const rotateCtx = rotatedCanvas.getContext("2d");
+	rotateCtx.translate(rotatedCanvas.width / 2, rotatedCanvas.height / 2);
+	rotateCtx.rotate(-Math.PI / 2);
+	rotateCtx.drawImage(canvas, -canvas.width / 2, -canvas.height / 2);
+
+	const ctx = rotatedCanvas.getContext("2d");
+	const imageData = ctx.getImageData(0, 0, rotatedCanvas.width, rotatedCanvas.height);
+	const data = imageData.data;
+	for (let i = 0; i < data.length; i += 4) {
+		const luminance = 0.299 * data[i] + 0.587 * data[i + 1] + 0.114 * data[i + 2];
+		const value = luminance > 200 ? 255 : 0;
+		data[i] = value;
+		data[i + 1] = value;
+		data[i + 2] = value;
+		data[i + 3] = 255;
+	}
+	ctx.putImageData(imageData, 0, 0);
+	return rotatedCanvas.toDataURL("image/png");
 };
 
 const getLabelBounds = (canvas) => {
@@ -990,7 +1238,8 @@ const updateCanvasImage = (canvas) => {
 	const fontStyle = $("#imageTextItalic").checked ? "italic" : "";
 	const fontWeight = $("#imageTextBold").checked ? "bold" : "";
 	const underline = $("#imageTextUnderline").checked;
-	if (!file) {
+	const imageSource = file || currentImageDataUrl;
+	if (!imageSource) {
 		clearCanvas(canvas);
 		return Promise.resolve();
 	}
@@ -1001,68 +1250,85 @@ const updateCanvasImage = (canvas) => {
 		? Math.max(10, Math.min(48, Math.floor(availableHeight * 0.5)))
 		: Math.max(1, fontSize);
 
-	return new Promise((resolve) => {
-		const reader = new FileReader();
-		reader.addEventListener("load", (event) => {
+	const drawImageLayout = (image) => {
+		clearCanvas(canvas);
+		ctx.translate(canvas.width / 2, canvas.height / 2);
+		ctx.rotate(Math.PI / 2);
+
+		ctx.imageSmoothingEnabled = false;
+		if (!text.trim()) {
+			const scale = Math.min(
+				availableWidth / image.width,
+				availableHeight / image.height,
+				1
+			);
+			const drawWidth = Math.max(1, Math.round(image.width * scale));
+			const drawHeight = Math.max(1, Math.round(image.height * scale));
+			const drawX = bounds.left + (availableWidth - drawWidth) / 2;
+			const drawY = bounds.top + (availableHeight - drawHeight) / 2;
+			drawBinarizedImage(ctx, image, drawX, drawY, drawWidth, drawHeight);
+		} else {
+			const gap = 6;
+			const minTextWidth = 32;
+			const maxImageWidth = Math.max(16, availableWidth - gap - minTextWidth);
+
+			const scale = Math.min(
+				maxImageWidth / image.width,
+				availableHeight / image.height,
+				1
+			);
+			const drawWidth = Math.max(1, Math.round(image.width * scale));
+			const drawHeight = Math.max(1, Math.round(image.height * scale));
+			const drawX = bounds.left;
+			const drawY = bounds.top + (availableHeight - drawHeight) / 2;
+			drawBinarizedImage(ctx, image, drawX, drawY, drawWidth, drawHeight);
+
+			const textX = bounds.left + drawWidth + gap;
+			const textY = bounds.top;
+			const textHeight = availableHeight;
+			const textWidth = Math.max(0, availableWidth - drawWidth - gap);
+			if (textWidth > 0 && textHeight > 0) {
+				ctx.fillStyle = "#000";
+				renderTextBlock(ctx, text, {
+					x: textX,
+					y: textY,
+					width: textWidth,
+					height: textHeight,
+					font,
+					fontSize: resolvedFontSize,
+					fontStyle,
+					fontWeight,
+					underline,
+					align: "left",
+				});
+			}
+		}
+
+		ctx.rotate(-Math.PI / 2);
+		ctx.translate(-canvas.width / 2, -canvas.height / 2);
+	};
+
+	if (typeof imageSource === "string") {
+		return new Promise((resolve) => {
 			const image = new Image();
 			image.addEventListener("load", () => {
-				clearCanvas(canvas);
-				ctx.translate(canvas.width / 2, canvas.height / 2);
-				ctx.rotate(Math.PI / 2);
-
-				ctx.imageSmoothingEnabled = false;
-				if (!text.trim()) {
-					const scale = Math.min(
-						availableWidth / image.width,
-						availableHeight / image.height,
-						1
-					);
-					const drawWidth = Math.max(1, Math.round(image.width * scale));
-					const drawHeight = Math.max(1, Math.round(image.height * scale));
-					const drawX = bounds.left + (availableWidth - drawWidth) / 2;
-					const drawY = bounds.top + (availableHeight - drawHeight) / 2;
-					drawBinarizedImage(ctx, image, drawX, drawY, drawWidth, drawHeight);
-				} else {
-					const gap = 6;
-					const minTextWidth = 32;
-					const maxImageWidth = Math.max(16, availableWidth - gap - minTextWidth);
-
-					const scale = Math.min(
-						maxImageWidth / image.width,
-						availableHeight / image.height,
-						1
-					);
-					const drawWidth = Math.max(1, Math.round(image.width * scale));
-					const drawHeight = Math.max(1, Math.round(image.height * scale));
-					const drawX = bounds.left;
-					const drawY = bounds.top + (availableHeight - drawHeight) / 2;
-					drawBinarizedImage(ctx, image, drawX, drawY, drawWidth, drawHeight);
-
-					const textX = bounds.left + drawWidth + gap;
-					const textY = bounds.top;
-					const textHeight = availableHeight;
-					const textWidth = Math.max(0, availableWidth - drawWidth - gap);
-					if (textWidth > 0 && textHeight > 0) {
-						ctx.fillStyle = "#000";
-						renderTextBlock(ctx, text, {
-							x: textX,
-							y: textY,
-							width: textWidth,
-							height: textHeight,
-							font,
-							fontSize: resolvedFontSize,
-							fontStyle,
-							fontWeight,
-							underline,
-							align: "left",
-						});
-					}
-				}
-
-				ctx.rotate(-Math.PI / 2);
-				ctx.translate(-canvas.width / 2, -canvas.height / 2);
+				drawImageLayout(image);
 				resolve();
 			});
+			image.addEventListener("error", () => resolve());
+			image.src = imageSource;
+		});
+	}
+
+		return new Promise((resolve) => {
+			const reader = new FileReader();
+			reader.addEventListener("load", (event) => {
+				currentImageDataUrl = event.target.result;
+				const image = new Image();
+				image.addEventListener("load", () => {
+					drawImageLayout(image);
+					resolve();
+				});
 			image.addEventListener("error", () => resolve());
 			image.src = event.target.result;
 		});
@@ -1204,32 +1470,43 @@ const initialize = () => {
 	const disconnectButton = $("#disconnectButton");
 	const printStatus = $("#printStatus");
 	const printCopies = $("#printCopies");
+	const historyButton = $("#historyButton");
+	const historyPanel = $("#historyPanel");
+	const historySaveButton = $("#historySaveButton");
+	const historyImportButton = $("#historyImportButton");
+	const historyImportInput = $("#historyImportInput");
+	const historyClearButton = $("#historyClearButton");
 	let printerDevice = null;
 	let printerCharacteristic = null;
 	restoreFormState();
 	applyTranslations();
+	renderHistoryList();
 	updateLabelSize(canvas);
 	setActiveLayout($("#layoutSelect").value, canvas);
 
 	$("#languageSelect").addEventListener("change", (event) => {
 		applyTranslations(event.target.value);
+		renderHistoryList();
 		refreshPreview($("#layoutSelect").value, canvas);
 		saveFormState();
 	});
 
 	$("#layoutSelect").addEventListener("change", (event) => {
+		clearPreviewOverride();
 		setActiveLayout(event.target.value, canvas);
 		saveFormState();
 	});
 
 	$$("#labelWidth, #labelHeight, #labelMarginX, #labelMarginY").forEach((input) =>
 		input.addEventListener("input", () => {
+			clearPreviewOverride();
 			updateLabelSize(canvas);
 			refreshPreview($("#layoutSelect").value, canvas);
 			saveFormState();
 		})
 	);
 	$("#labelPreset").addEventListener("change", (event) => {
+		clearPreviewOverride();
 		const [height, width] = event.target.value.split("x").map((value) => Number(value));
 		if (Number.isFinite(height) && Number.isFinite(width)) {
 			$("#labelHeight").value = height;
@@ -1243,6 +1520,7 @@ const initialize = () => {
 	$$("#textInput, #textSize, #textFont, #textAlign, #textBold, #textItalic, #textUnderline").forEach(
 		(input) =>
 			input.addEventListener("input", () => {
+				clearPreviewOverride();
 				refreshPreview("text", canvas);
 				saveFormState();
 			})
@@ -1250,6 +1528,7 @@ const initialize = () => {
 
 	$$("#barcodeInput, #barcodeFormat, #barcodeShowValue").forEach((input) =>
 		input.addEventListener("input", () => {
+			clearPreviewOverride();
 			refreshPreview("barcode", canvas);
 			saveFormState();
 		})
@@ -1257,17 +1536,23 @@ const initialize = () => {
 	$$("#barcodeTextInput, #barcodeTextSize, #barcodeTextFont, #barcodeTextBold, #barcodeTextItalic, #barcodeTextUnderline").forEach(
 		(input) =>
 			input.addEventListener("input", () => {
+				clearPreviewOverride();
 				refreshPreview("barcode", canvas);
 				saveFormState();
 			})
 	);
 	$("#imageInput").addEventListener("change", () => {
+		clearPreviewOverride();
+		if (!$("#imageInput").files[0]) {
+			currentImageDataUrl = "";
+		}
 		refreshPreview("image", canvas);
 		saveFormState();
 	});
 	$$("#imageTextInput, #imageTextSize, #imageTextFont, #imageTextBold, #imageTextItalic, #imageTextUnderline").forEach(
 		(input) =>
 			input.addEventListener("input", () => {
+				clearPreviewOverride();
 				refreshPreview("image", canvas);
 				saveFormState();
 			})
@@ -1275,14 +1560,61 @@ const initialize = () => {
 	$$("#qrTextData, #qrTextInput, #qrTextSize, #qrTextFont, #qrTextAlign, #qrTextBold, #qrTextItalic, #qrTextUnderline").forEach(
 		(input) =>
 			input.addEventListener("input", () => {
+				clearPreviewOverride();
 				refreshPreview("qr-text", canvas);
 				saveFormState();
 			})
 	);
 	$("#resetButton").addEventListener("click", () => {
+		clearPreviewOverride();
 		resetFormState();
 		updateLabelSize(canvas);
 		setActiveLayout($("#layoutSelect").value, canvas);
+	});
+	historyButton.addEventListener("click", () => {
+		historyPanel.hidden = !historyPanel.hidden;
+		if (!historyPanel.hidden) {
+			renderHistoryList();
+		}
+	});
+	historySaveButton.addEventListener("click", () => {
+		addHistoryEntry(canvas);
+	});
+	historyImportButton.addEventListener("click", () => historyImportInput.click());
+	historyImportInput.addEventListener("change", (event) => {
+		const file = event.target.files[0];
+		if (!file) return;
+		const reader = new FileReader();
+		reader.addEventListener("load", () => {
+			try {
+				const parsed = JSON.parse(reader.result);
+				const entries = Array.isArray(parsed) ? parsed : [parsed];
+				const normalized = entries
+					.map((item) => normalizeHistoryEntry(item))
+					.filter(Boolean);
+				if (normalized.length > 0) {
+					const existing = getHistory();
+					const merged = [...normalized, ...existing];
+					const deduped = [];
+					const seen = new Set();
+					merged.forEach((item) => {
+						if (seen.has(item.id)) return;
+						seen.add(item.id);
+						deduped.push(item);
+					});
+					saveHistory(deduped.slice(0, 50));
+					renderHistoryList();
+				}
+			} catch (error) {
+				console.error(error);
+			}
+		});
+		reader.readAsText(file);
+		historyImportInput.value = "";
+	});
+	historyClearButton.addEventListener("click", () => {
+		saveHistory([]);
+		renderHistoryList();
 	});
 
 	const updateConnectionUI = (connected) => {
@@ -1360,6 +1692,7 @@ const initialize = () => {
 					copies > 1
 						? t("print.status.sentCopies", { count: copies })
 						: t("print.status.sent");
+				addHistoryEntry(canvas);
 			})
 			.catch((error) => {
 				console.error(error);

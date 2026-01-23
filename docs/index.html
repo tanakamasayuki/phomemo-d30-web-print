@@ -101,7 +101,8 @@
 						<input type="checkbox" id="barcodeShowValue" checked />
 						<span data-i18n="barcode.showValue">Show barcode value</span>
 					</label>
-					<label for="barcodeTextInput" class="field-label" data-i18n="common.textOptional">Text (optional)</label>
+					<label for="barcodeTextInput" class="field-label" data-i18n="common.textOptional">Text
+						(optional)</label>
 					<textarea id="barcodeTextInput" class="field-input" rows="2"></textarea>
 					<label for="barcodeTextFont" class="field-label" data-i18n="common.font">Font</label>
 					<select id="barcodeTextFont" class="field-input">
@@ -139,7 +140,8 @@
 					<h3 data-i18n="image.title">Image + Text settings</h3>
 					<label for="imageInput" class="field-label" data-i18n="image.file">Image file</label>
 					<input id="imageInput" class="field-input" type="file" accept="image/*" />
-					<label for="imageTextInput" class="field-label" data-i18n="common.textOptional">Text (optional)</label>
+					<label for="imageTextInput" class="field-label" data-i18n="common.textOptional">Text
+						(optional)</label>
 					<textarea id="imageTextInput" class="field-input" rows="2"></textarea>
 					<label for="imageTextFont" class="field-label" data-i18n="common.font">Font</label>
 					<select id="imageTextFont" class="field-input">
@@ -195,12 +197,6 @@
 					</select>
 					<label for="qrTextSize" class="field-label" data-i18n="common.fontSize">Font size (px)</label>
 					<input id="qrTextSize" class="field-input" type="number" value="24" min="1" />
-					<label for="qrTextAlign" class="field-label" data-i18n="common.alignment">Alignment</label>
-					<select id="qrTextAlign" class="field-input">
-						<option value="center" selected data-i18n="common.alignCenter">Center</option>
-						<option value="left" data-i18n="common.alignLeft">Left</option>
-						<option value="right" data-i18n="common.alignRight">Right</option>
-					</select>
 					<div class="toggle-row">
 						<label class="toggle">
 							<input type="checkbox" id="qrTextBold" checked />
@@ -215,6 +211,12 @@
 							<span data-i18n="common.underline">Underline</span>
 						</label>
 					</div>
+					<label for="qrTextAlign" class="field-label" data-i18n="common.alignment">Alignment</label>
+					<select id="qrTextAlign" class="field-input">
+						<option value="center" selected data-i18n="common.alignCenter">Center</option>
+						<option value="left" data-i18n="common.alignLeft">Left</option>
+						<option value="right" data-i18n="common.alignRight">Right</option>
+					</select>
 				</div>
 
 			</section>
@@ -240,14 +242,16 @@
 					<button type="button" class="primary-button" id="printButton" data-i18n="print.connect">
 						Connect &amp; print
 					</button>
-					<button type="button" class="secondary-button" id="disconnectButton" data-i18n="print.disconnect" hidden>
+					<button type="button" class="secondary-button" id="disconnectButton" data-i18n="print.disconnect"
+						hidden>
 						Disconnect
 					</button>
 					<p class="status" id="printStatus" aria-live="polite"></p>
 				</div>
 				<div class="card">
 					<h2 data-i18n="label.title">Label size</h2>
-					<label for="labelPreset" class="field-label" data-i18n="label.preset">Preset (Height x Width)</label>
+					<label for="labelPreset" class="field-label" data-i18n="label.preset">Preset (Height x
+						Width)</label>
 					<select id="labelPreset" class="field-input">
 						<option value="" selected data-i18n="label.choosePreset">Choose a preset</option>
 						<option value="6x22">6 x 22 mm</option>
@@ -266,15 +270,38 @@
 						</div>
 						<br>
 						<div>
-							<label for="labelMarginY" class="field-label" data-i18n="label.marginY">Margin Y (mm)</label>
+							<label for="labelMarginY" class="field-label" data-i18n="label.marginY">Margin Y
+								(mm)</label>
 							<input id="labelMarginY" class="field-input" type="number" value="0" min="0" />
 						</div>
 						<div>
-							<label for="labelMarginX" class="field-label" data-i18n="label.marginX">Margin X (mm)</label>
+							<label for="labelMarginX" class="field-label" data-i18n="label.marginX">Margin X
+								(mm)</label>
 							<input id="labelMarginX" class="field-input" type="number" value="2" min="0" />
 						</div>
 					</div>
-					<button type="button" class="secondary-button" id="resetButton" data-i18n="common.reset">Reset</button>
+					<div class="button-row">
+						<button type="button" class="secondary-button" id="resetButton"
+							data-i18n="common.reset">Reset</button>
+						<button type="button" class="secondary-button" id="historyButton"
+							data-i18n="history.open">History</button>
+					</div>
+				</div>
+				<div class="card history-card" id="historyPanel" hidden>
+					<div class="history-header">
+						<h2 data-i18n="history.title">Print history</h2>
+						<div class="history-actions">
+							<input type="file" id="historyImportInput" accept="application/json" hidden />
+							<button type="button" class="secondary-button" id="historySaveButton"
+								data-i18n="history.save">Save preview</button>
+							<button type="button" class="secondary-button" id="historyImportButton"
+								data-i18n="history.import">Import JSON</button>
+							<button type="button" class="secondary-button" id="historyClearButton"
+								data-i18n="history.clearAll">Clear all</button>
+						</div>
+					</div>
+					<p class="status" id="historyEmpty" data-i18n="history.empty">No history yet.</p>
+					<div class="history-list" id="historyList"></div>
 				</div>
 			</section>
 		</main>
