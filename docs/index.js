@@ -77,8 +77,8 @@ let currentImageDataUrl = "";
 
 const I18N = {
 	en: {
-		"app.title": "Label Layout Builder",
-		"hero.title": "Web Bluetooth Print",
+		"app.title": "Phomemo D30 Label Designer",
+		"hero.title": "D30 Label Designer",
 		"language.title": "Language",
 		"language.auto": "Auto (Browser)",
 		"language.english": "English",
@@ -161,8 +161,8 @@ const I18N = {
 		"error.barcode.invalid": "Invalid barcode value.",
 	},
 	ja: {
-		"app.title": "ラベルレイアウトビルダー",
-		"hero.title": "Web Bluetooth Print",
+		"app.title": "Phomemo D30用ラベルデザイン",
+		"hero.title": "D30用ラベルデザイン",
 		"language.title": "言語",
 		"language.auto": "自動（ブラウザ）",
 		"language.english": "英語",
@@ -244,8 +244,8 @@ const I18N = {
 		"error.barcode.invalid": "バーコード値が無効です。",
 	},
 	zh: {
-		"app.title": "标签版式生成器",
-		"hero.title": "Web Bluetooth Print",
+		"app.title": "Phomemo D30 标签设计",
+		"hero.title": "D30 标签设计",
 		"language.title": "语言",
 		"language.auto": "自动（浏览器）",
 		"language.english": "英语",
@@ -327,8 +327,8 @@ const I18N = {
 		"error.barcode.invalid": "条码值无效。",
 	},
 	fr: {
-		"app.title": "Générateur de mise en page",
-		"hero.title": "Web Bluetooth Print",
+		"app.title": "Concepteur d'etiquettes Phomemo D30",
+		"hero.title": "Concepteur d'etiquettes D30",
 		"language.title": "Langue",
 		"language.auto": "Auto (navigateur)",
 		"language.english": "Anglais",
@@ -410,8 +410,8 @@ const I18N = {
 		"error.barcode.invalid": "Valeur de code-barres invalide.",
 	},
 	es: {
-		"app.title": "Generador de diseño",
-		"hero.title": "Web Bluetooth Print",
+		"app.title": "Disenador de etiquetas Phomemo D30",
+		"hero.title": "Disenador de etiquetas D30",
 		"language.title": "Idioma",
 		"language.auto": "Auto (navegador)",
 		"language.english": "Inglés",
@@ -493,8 +493,8 @@ const I18N = {
 		"error.barcode.invalid": "Valor de código de barras no válido.",
 	},
 	de: {
-		"app.title": "Layout-Generator",
-		"hero.title": "Web Bluetooth Print",
+		"app.title": "Phomemo D30 Etiketten-Designer",
+		"hero.title": "D30 Etiketten-Designer",
 		"language.title": "Sprache",
 		"language.auto": "Auto (Browser)",
 		"language.english": "Englisch",
