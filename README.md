@@ -4,12 +4,14 @@ Browser-based label designer and Web Bluetooth printer workflow for the Phomemo 
 
 ## Features
 
-- Text layouts with font, size, alignment, bold/italic/underline controls
-- CODE128 barcode layout
-- Image layout with auto-binarization for print clarity
-- QR code layout and QR + text layout
-- Adjustable label size and margins with live canvas preview
-- Multiple-copy printing over Web Bluetooth
+- Text layout with font, size, alignment, bold/italic/underline controls
+- Barcode + text layout (CODE128/CODE39/EAN-13/EAN-8/UPC) with optional value display
+- Image + text layout with binarized image rendering
+- QR Code + Text layout
+- Adjustable label size, margins, and presets (6x22, 12x40, 14x30, 14x40)
+- Multi-language UI (Japanese, Chinese, French, Spanish, German, English)
+- Print history with previews, JSON import/export, and restore
+- Multiple-copy printing over Web Bluetooth with connect/disconnect controls
 
 ## Requirements
 
@@ -25,16 +27,17 @@ https://tanakamasayuki.github.io/phomemo-d30-web-print/
 
 ## How to use
 
-1. Choose a layout (text, barcode, image, QR, or QR + text).
+1. Choose a layout (text, barcode + text, image + text, or QR code + text).
 2. Enter your data and adjust font, size, and alignment.
 3. Set label size and margins to match your roll.
 4. Click "Connect & print" and select the Phomemo D30 in the browser dialog.
+5. Use "History" to save previews or restore previous prints.
 
 The preview canvas is rotated to match the printer's orientation.
 
 ## Notes
 
-- Barcodes are generated with CODE128.
+- Barcodes support CODE128, CODE39, EAN-13, EAN-8, and UPC.
 - Images are converted to black/white before printing.
 - The page loads fonts and libraries via CDN.
 
